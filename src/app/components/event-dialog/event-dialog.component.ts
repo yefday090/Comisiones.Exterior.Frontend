@@ -1,10 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { provideNativeDateAdapter } from '@angular/material/core';
 import { AgendaEvent } from '../../models/agenda-event.model';
 
 export interface EventDialogData {
@@ -16,11 +18,13 @@ export interface EventDialogData {
   imports: [
     FormsModule,
     MatButtonModule,
+    MatDatepickerModule,
     MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
   ],
+  providers: [provideNativeDateAdapter()],
   templateUrl: './event-dialog.component.html',
   styleUrl: './event-dialog.component.scss',
 })
@@ -30,14 +34,25 @@ export class EventDialogComponent {
 
   readonly isEdit = !!this.data.event;
 
-  // Form fields
   title = this.data.event?.title ?? '';
   description = this.data.event?.description ?? '';
-  date = this.data.event?.date ?? this._todayStr();
   startTime = this.data.event?.startTime ?? '08:00';
   endTime = this.data.event?.endTime ?? '09:00';
   tipo = this.data.event?.tipo ?? 'Normal';
   estado = this.data.event?.estado ?? 'Pendiente';
+
+  // Date as Date object for datepicker, synced with string
+  private _dateStr = this.data.event?.date ?? this._todayStr();
+
+  get pickerDate(): Date {
+    return new Date(this._dateStr + 'T12:00:00');
+  }
+
+  set pickerDate(val: Date) {
+    if (val) {
+      this._dateStr = this._formatDate(val);
+    }
+  }
 
   readonly tipos: AgendaEvent['tipo'][] = ['Normal', 'Extemporanea', 'Extra Oficial'];
   readonly estados: AgendaEvent['estado'][] = ['Pendiente', 'Confirmada', 'Cancelada'];
@@ -47,13 +62,13 @@ export class EventDialogComponent {
   }
 
   save(): void {
-    if (!this.title.trim() || !this.date) return;
+    if (!this.title.trim() || !this._dateStr) return;
 
     const event: AgendaEvent = {
       id: this.data.event?.id ?? crypto.randomUUID(),
       title: this.title.trim(),
       description: this.description.trim(),
-      date: this.date,
+      date: this._dateStr,
       startTime: this.startTime,
       endTime: this.endTime,
       tipo: this.tipo,
@@ -75,6 +90,13 @@ export class EventDialogComponent {
     const m = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
     return `${y}-${m}-${day}`;
+  }
+
+  private _formatDate(date: Date): string {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
   }
 
   private _colorForTipo(tipo: AgendaEvent['tipo']): string {
