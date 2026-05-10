@@ -41,16 +41,22 @@ export class EventDialogComponent {
   tipo = this.data.event?.tipo ?? 'Normal';
   estado = this.data.event?.estado ?? 'Pendiente';
 
-  // Date as Date object for datepicker, synced with string
+  // Date as Date object for datepicker, synced with string.
+  // Cache the Date to avoid infinite change detection: a getter
+  // returning `new Date(...)` creates a new object reference every
+  // time, which Angular interprets as a change and re-invokes the
+  // setter — causing a freeze.
   private _dateStr = this.data.event?.date ?? this._todayStr();
+  private _cachedDate = new Date(this._dateStr + 'T12:00:00');
 
   get pickerDate(): Date {
-    return new Date(this._dateStr + 'T12:00:00');
+    return this._cachedDate;
   }
 
   set pickerDate(val: Date) {
     if (val) {
       this._dateStr = this._formatDate(val);
+      this._cachedDate = new Date(this._dateStr + 'T12:00:00');
     }
   }
 
