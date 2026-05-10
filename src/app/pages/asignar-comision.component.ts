@@ -1,129 +1,41 @@
-import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
 import { NgIf, NgFor } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTableModule } from '@angular/material/table';
+import { FormFieldConfig } from '../models/form-field.model';
+import { FormConfigService } from '../services/form-config.service';
+import { DynamicSearchFormComponent } from '../components/dynamic-search-form/dynamic-search-form.component';
 
-interface FiltroComision {
-  fechaDesde: Date | null;
-  fechaHasta: Date | null;
+interface ComisionRow {
+  id: string;
   tipo: string;
   asignadaA: string;
   estado: string;
+  fechaCreacion: string;
 }
 
 @Component({
   standalone: true,
   imports: [
-    FormsModule,
     NgIf,
     NgFor,
     MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatButtonModule,
-    MatIconModule,
     MatChipsModule,
     MatTableModule,
+    DynamicSearchFormComponent,
   ],
   template: `
     <div class="page">
       <h2>Asignar Comisión</h2>
       <p class="subtitle">Buscá comisiones para asignar.</p>
 
-      <!-- Filtros -->
-      <mat-card class="filtros-card">
-        <mat-card-header>
-          <mat-card-title>Filtros de búsqueda</mat-card-title>
-        </mat-card-header>
-
-        <mat-card-content>
-          <form (ngSubmit)="buscar()" #filtroForm="ngForm">
-            <div class="filters-grid">
-              <!-- Fecha Desde -->
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Fecha desde</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="pickerDesde"
-                  name="fechaDesde"
-                  [(ngModel)]="filtro.fechaDesde"
-                />
-                <mat-datepicker-toggle matIconSuffix [for]="pickerDesde" />
-                <mat-datepicker #pickerDesde />
-              </mat-form-field>
-
-              <!-- Fecha Hasta -->
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>Fecha hasta</mat-label>
-                <input
-                  matInput
-                  [matDatepicker]="pickerHasta"
-                  name="fechaHasta"
-                  [(ngModel)]="filtro.fechaHasta"
-                />
-                <mat-datepicker-toggle matIconSuffix [for]="pickerHasta" />
-                <mat-datepicker #pickerHasta />
-              </mat-form-field>
-
-              <!-- Tipo -->
-              <mat-form-field appearance="outline">
-                <mat-label>Tipo</mat-label>
-                <mat-select name="tipo" [(ngModel)]="filtro.tipo">
-                  <mat-option value="">Todos</mat-option>
-                  <mat-option value="Extemporanea">Extemporánea</mat-option>
-                  <mat-option value="Normal">Normal</mat-option>
-                  <mat-option value="Extra Oficial">Extra Oficial</mat-option>
-                </mat-select>
-              </mat-form-field>
-
-              <!-- Asignada a -->
-              <mat-form-field appearance="outline">
-                <mat-label>Asignada a</mat-label>
-                <input
-                  matInput
-                  name="asignadaA"
-                  [(ngModel)]="filtro.asignadaA"
-                  placeholder="Nombre del funcionario"
-                />
-              </mat-form-field>
-
-              <!-- Estado -->
-              <mat-form-field appearance="outline">
-                <mat-label>Estado</mat-label>
-                <mat-select name="estado" [(ngModel)]="filtro.estado">
-                  <mat-option value="">Todos</mat-option>
-                  <mat-option value="Radicada">Radicada</mat-option>
-                  <mat-option value="Asignada">Asignada</mat-option>
-                  <mat-option value="Terminada">Terminada</mat-option>
-                </mat-select>
-              </mat-form-field>
-            </div>
-
-            <div class="form-actions">
-              <button mat-flat-button type="submit">
-                <mat-icon>search</mat-icon>
-                Buscar
-              </button>
-              <button mat-stroked-button type="button" (click)="limpiar()">
-                <mat-icon>cleaning_services</mat-icon>
-                Limpiar
-              </button>
-            </div>
-          </form>
-        </mat-card-content>
-      </mat-card>
+      <!-- Dynamic Search Form -->
+      <app-dynamic-search-form
+        [fields]="fields"
+        (search)="onSearch($event)"
+        (clear)="onClear()"
+      />
 
       <!-- Resultados -->
       <mat-card class="resultados-card" *ngIf="buscado">
@@ -190,40 +102,14 @@ interface FiltroComision {
         font-size: 0.95rem;
       }
 
-      /* ── Cards ─────────────────────────────── */
-      .filtros-card {
-        margin-bottom: 1.5rem;
-      }
-
       .resultados-card {
         margin-bottom: 1.5rem;
       }
 
-      /* ── Filters Grid ──────────────────────── */
-      .filters-grid {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 1rem;
-        margin-bottom: 0.5rem;
-      }
-
-      .full-width {
-        width: 100%;
-      }
-
-      /* ── Buttons ───────────────────────────── */
-      .form-actions {
-        display: flex;
-        gap: 0.75rem;
-        margin-top: 0.5rem;
-      }
-
-      /* ── Table ─────────────────────────────── */
       table {
         width: 100%;
       }
 
-      /* ── Chips (Badges) ────────────────────── */
       .radicada {
         --mdc-chip-elevated-container-color: #dbeafe;
         --mdc-chip-label-text-color: #1e40af;
@@ -244,43 +130,17 @@ interface FiltroComision {
         font-size: 0.95rem;
         padding: 1rem 0;
       }
-
-      /* ── Responsive ────────────────────────── */
-      @media (max-width: 1100px) {
-        .filters-grid {
-          grid-template-columns: repeat(3, 1fr);
-        }
-      }
-
-      @media (max-width: 700px) {
-        .filters-grid {
-          grid-template-columns: repeat(2, 1fr);
-        }
-      }
-
-      @media (max-width: 480px) {
-        .filters-grid {
-          grid-template-columns: 1fr;
-        }
-      }
     `,
   ],
 })
-export class AsignarComisionComponent {
-  filtro: FiltroComision = {
-    fechaDesde: null,
-    fechaHasta: null,
-    tipo: '',
-    asignadaA: '',
-    estado: '',
-  };
+export class AsignarComisionComponent implements OnInit {
+  fields: FormFieldConfig[] = [];
 
   buscado = false;
-  resultados: any[] = [];
+  resultados: ComisionRow[] = [];
   displayedColumns = ['id', 'tipo', 'asignadaA', 'estado', 'fechaCreacion'];
 
-  // Datos de ejemplo (reemplazar por API)
-  private readonly datosMock = [
+  private readonly datosMock: ComisionRow[] = [
     { id: 'COM-001', tipo: 'Normal', asignadaA: 'Carlos Pérez', estado: 'Radicada', fechaCreacion: '2026-05-01' },
     { id: 'COM-002', tipo: 'Extemporanea', asignadaA: 'María López', estado: 'Asignada', fechaCreacion: '2026-04-28' },
     { id: 'COM-003', tipo: 'Extra Oficial', asignadaA: 'Juan Ríos', estado: 'Terminada', fechaCreacion: '2026-04-15' },
@@ -288,25 +148,34 @@ export class AsignarComisionComponent {
     { id: 'COM-005', tipo: 'Normal', asignadaA: 'Carlos Pérez', estado: 'Radicada', fechaCreacion: '2026-05-08' },
   ];
 
-  buscar(): void {
+  constructor(private formConfig: FormConfigService) {}
+
+  ngOnInit(): void {
+    this.fields = this.formConfig.getSearchFields();
+  }
+
+  onSearch(values: Record<string, any>): void {
     this.buscado = true;
+
+    const fechaDesde = values['fechaCreacion_desde'] as Date | null;
+    const fechaHasta = values['fechaCreacion_hasta'] as Date | null;
+    const tipo = values['tipo'] as string;
+    const asignadaA = values['asignadaA'] as string;
+    const estado = values['estado'] as string;
 
     this.resultados = this.datosMock.filter((d) => {
       const fechaOk =
-        (!this.filtro.fechaDesde || d.fechaCreacion >= this.formatDate(this.filtro.fechaDesde)) &&
-        (!this.filtro.fechaHasta || d.fechaCreacion <= this.formatDate(this.filtro.fechaHasta));
-      const tipoOk = !this.filtro.tipo || d.tipo === this.filtro.tipo;
-      const asignadoOk =
-        !this.filtro.asignadaA ||
-        d.asignadaA.toLowerCase().includes(this.filtro.asignadaA.toLowerCase());
-      const estadoOk = !this.filtro.estado || d.estado === this.filtro.estado;
+        (!fechaDesde || d.fechaCreacion >= this.formatDate(fechaDesde)) &&
+        (!fechaHasta || d.fechaCreacion <= this.formatDate(fechaHasta));
+      const tipoOk = !tipo || d.tipo === tipo;
+      const asignadoOk = !asignadaA || d.asignadaA.toLowerCase().includes(asignadaA.toLowerCase());
+      const estadoOk = !estado || d.estado === estado;
 
       return fechaOk && tipoOk && asignadoOk && estadoOk;
     });
   }
 
-  limpiar(): void {
-    this.filtro = { fechaDesde: null, fechaHasta: null, tipo: '', asignadaA: '', estado: '' };
+  onClear(): void {
     this.buscado = false;
     this.resultados = [];
   }
