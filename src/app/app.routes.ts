@@ -14,6 +14,30 @@ export const routes: Routes = [
       import('./dashboard/dashboard.component').then(
         (m) => m.DashboardComponent
       ),
+    children: [
+      { path: '', redirectTo: 'asignar-comision', pathMatch: 'full' },
+      {
+        path: 'asignar-comision',
+        loadComponent: () =>
+          import('./pages/asignar-comision.component').then(
+            (m) => m.AsignarComisionComponent
+          ),
+      },
+      {
+        path: 'agendar-comision',
+        loadComponent: () =>
+          import('./pages/agendar-comision.component').then(
+            (m) => m.AgendarComisionComponent
+          ),
+      },
+      {
+        path: 'consultar-agenda',
+        loadComponent: () =>
+          import('./pages/consultar-agenda.component').then(
+            (m) => m.ConsultarAgendaComponent
+          ),
+      },
+    ],
   },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: '**', redirectTo: '/login' },

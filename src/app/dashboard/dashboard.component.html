@@ -1,11 +1,30 @@
-<div class="dashboard-wrapper">
-  <header class="dashboard-header">
-    <h2>Comisiones Exterior</h2>
-    <button (click)="logout()">Cerrar sesión</button>
-  </header>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <h1>Comisiones Exterior</h1>
+    </div>
 
-  <main class="dashboard-content">
-    <h1>¡Bienvenido, {{ user() }}!</h1>
-    <p>Has iniciado sesión correctamente. Acá va el contenido de la app.</p>
+    <nav class="sidebar-nav">
+      @for (item of menuItems; track item.link) {
+        <a
+          [routerLink]="item.link"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="nav-item"
+        >
+          <span class="nav-icon">{{ item.icon }}</span>
+          <span class="nav-label">{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+
+    <div class="sidebar-footer">
+      <span class="user-info">{{ user() }}</span>
+      <button class="logout-btn" (click)="logout()">Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <router-outlet />
   </main>
 </div>
