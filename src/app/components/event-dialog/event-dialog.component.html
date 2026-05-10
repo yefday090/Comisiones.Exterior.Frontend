@@ -14,9 +14,7 @@
 
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Fecha</mat-label>
-      <input matInput [matDatepicker]="picker" [(ngModel)]="date" name="date" required />
-      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-      <mat-datepicker #picker></mat-datepicker>
+      <input matInput type="date" [(ngModel)]="date" name="date" required />
     </mat-form-field>
 
     <div class="time-row">
