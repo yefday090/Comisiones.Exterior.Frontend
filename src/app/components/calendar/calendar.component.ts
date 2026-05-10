@@ -1,4 +1,4 @@
-import { Component, input, output, signal } from '@angular/core';
+import { Component, input, output, signal, computed } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -31,18 +31,18 @@ export class CalendarComponent {
 
   readonly currentMonth = signal(new Date());
 
-  private _weeks(): CalendarDay[][] {
+  readonly weeks = computed<CalendarDay[][]>(() => {
     const now = new Date();
     const view = this.currentMonth();
     const year = view.getFullYear();
     const month = view.getMonth();
 
-    // First day of the month, adjusted so Monday = 0
     const firstDay = new Date(year, month, 1);
     let startOffset = firstDay.getDay() - 1;
-    if (startOffset < 0) startOffset = 6; // Sunday becomes 6
+    if (startOffset < 0) startOffset = 6;
 
     const startDate = new Date(year, month, 1 - startOffset);
+    const evts = this.events();
     const weeks: CalendarDay[][] = [];
 
     for (let w = 0; w < 6; w++) {
@@ -52,7 +52,7 @@ export class CalendarComponent {
         date.setDate(startDate.getDate() + w * 7 + d);
 
         const dateStr = this._formatDate(date);
-        const dayEvents = this.events().filter((e) => e.date === dateStr);
+        const dayEvents = evts.filter((e) => e.date === dateStr);
 
         week.push({
           date: new Date(date),
@@ -65,34 +65,21 @@ export class CalendarComponent {
     }
 
     return weeks;
-  }
+  });
 
-  readonly weeks = signal<CalendarDay[][]>([]);
-
-  constructor() {
-    // Compute weeks reactively by using a computed-like pattern
-    this._recomputeWeeks();
-  }
-
-  private _recomputeWeeks(): void {
-    this.weeks.set(this._weeks());
-  }
-
-  get monthLabel(): string {
+  readonly monthLabel = computed(() => {
     const view = this.currentMonth();
     return `${MONTHS_ES[view.getMonth()]} ${view.getFullYear()}`;
-  }
+  });
 
   readonly weekdays = WEEKDAYS_ES;
 
   prevMonth(): void {
     this.currentMonth.update((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1));
-    this._recomputeWeeks();
   }
 
   nextMonth(): void {
     this.currentMonth.update((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1));
-    this._recomputeWeeks();
   }
 
   selectDay(day: CalendarDay): void {

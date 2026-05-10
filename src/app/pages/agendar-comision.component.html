@@ -28,10 +28,10 @@
       </mat-card-header>
       <mat-divider></mat-divider>
       <mat-card-content>
-        @if (selectedDateEvents().length === 0) {
+        @if (selectedDateEvents.length === 0) {
           <p class="empty-state">No hay eventos para este día.</p>
         } @else {
-          @for (evt of selectedDateEvents(); track evt.id) {
+          @for (evt of selectedDateEvents; track evt.id) {
             <div
               class="event-item"
               [class.selected]="selectedEvent()?.id === evt.id"

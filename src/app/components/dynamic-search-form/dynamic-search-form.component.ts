@@ -48,15 +48,10 @@ import { FormFieldConfig } from '../../models/form-field.model';
                   <mat-label>{{ field.label }} desde</mat-label>
                   <input
                     matInput
-                    [matDatepicker]="pickerDesde_{{ field.name }}"
+                    type="date"
                     [name]="field.name + '_desde'"
                     [(ngModel)]="values[field.name + '_desde']"
                   />
-                  <mat-datepicker-toggle
-                    matIconSuffix
-                    [for]="pickerDesde_{{ field.name }}"
-                  />
-                  <mat-datepicker #pickerDesde_{{ field.name }} />
                 </mat-form-field>
 
                 <!-- Date range: Hasta -->
@@ -64,15 +59,10 @@ import { FormFieldConfig } from '../../models/form-field.model';
                   <mat-label>{{ field.label }} hasta</mat-label>
                   <input
                     matInput
-                    [matDatepicker]="pickerHasta_{{ field.name }}"
+                    type="date"
                     [name]="field.name + '_hasta'"
                     [(ngModel)]="values[field.name + '_hasta']"
                   />
-                  <mat-datepicker-toggle
-                    matIconSuffix
-                    [for]="pickerHasta_{{ field.name }}"
-                  />
-                  <mat-datepicker #pickerHasta_{{ field.name }} />
                 </mat-form-field>
               } @else if (field.type === 'select') {
                 <mat-form-field appearance="outline">
