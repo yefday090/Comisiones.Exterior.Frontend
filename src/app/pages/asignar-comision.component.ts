@@ -24,19 +24,26 @@ interface FiltroComision {
 
         <form (ngSubmit)="buscar()" #filtroForm="ngForm">
           <div class="filters-grid">
-            <!-- Rango de fechas -->
-            <div class="field-group">
-              <label>Fecha creación</label>
-              <div class="date-range">
-                <div class="field">
-                  <span class="field-label">Desde</span>
-                  <input type="date" name="fechaDesde" [(ngModel)]="filtro.fechaDesde" />
-                </div>
-                <div class="field">
-                  <span class="field-label">Hasta</span>
-                  <input type="date" name="fechaHasta" [(ngModel)]="filtro.fechaHasta" />
-                </div>
-              </div>
+            <!-- Fecha Desde -->
+            <div class="field">
+              <label for="fechaDesde">Fecha desde</label>
+              <input
+                id="fechaDesde"
+                name="fechaDesde"
+                type="date"
+                [(ngModel)]="filtro.fechaDesde"
+              />
+            </div>
+
+            <!-- Fecha Hasta -->
+            <div class="field">
+              <label for="fechaHasta">Fecha hasta</label>
+              <input
+                id="fechaHasta"
+                name="fechaHasta"
+                type="date"
+                [(ngModel)]="filtro.fechaHasta"
+              />
             </div>
 
             <!-- Tipo -->
@@ -148,7 +155,7 @@ interface FiltroComision {
       /* ── Filters Grid ──────────────────────── */
       .filters-grid {
         display: grid;
-        grid-template-columns: 2fr 1fr 1fr 1fr;
+        grid-template-columns: repeat(5, 1fr);
         gap: 1.25rem;
         margin-bottom: 1.25rem;
       }
@@ -156,13 +163,14 @@ interface FiltroComision {
       .field {
         display: flex;
         flex-direction: column;
-        gap: 0.35rem;
+        gap: 0.4rem;
       }
 
       .field label {
         font-size: 0.8rem;
         font-weight: 600;
         color: #374151;
+        white-space: nowrap;
       }
 
       .field input,
@@ -174,37 +182,13 @@ interface FiltroComision {
         outline: none;
         transition: border-color 0.15s ease;
         background: #ffffff;
+        width: 100%;
+        box-sizing: border-box;
       }
 
       .field input:focus,
       .field select:focus {
         border-color: #0f3460;
-      }
-
-      .field-group {
-        display: flex;
-        flex-direction: column;
-        gap: 0.35rem;
-      }
-
-      .field-group > label {
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: #374151;
-      }
-
-      .date-range {
-        display: flex;
-        gap: 0.75rem;
-      }
-
-      .date-range .field {
-        flex: 1;
-      }
-
-      .field-label {
-        font-size: 0.7rem;
-        color: #9ca3af;
       }
 
       /* ── Buttons ───────────────────────────── */
@@ -304,13 +288,19 @@ interface FiltroComision {
       }
 
       /* ── Responsive ────────────────────────── */
-      @media (max-width: 900px) {
+      @media (max-width: 1100px) {
         .filters-grid {
-          grid-template-columns: 1fr 1fr;
+          grid-template-columns: repeat(3, 1fr);
         }
       }
 
-      @media (max-width: 560px) {
+      @media (max-width: 700px) {
+        .filters-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (max-width: 480px) {
         .filters-grid {
           grid-template-columns: 1fr;
         }
