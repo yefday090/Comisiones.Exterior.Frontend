@@ -4,7 +4,7 @@ import { AgendaEvent } from '../models/agenda-event.model';
 
 @Injectable({ providedIn: 'root' })
 export class AgendaService {
-  private readonly _events = signal<AgendaEvent[]>(this.buildMockData());
+  private readonly _events = signal<AgendaEvent[]>([]);
   readonly events = this._events.asReadonly();
 
   readonly userEvents = computed(() => {
@@ -13,7 +13,9 @@ export class AgendaService {
     return this._events().filter((e) => e.assignedTo === user);
   });
 
-  constructor(private readonly auth: AuthService) {}
+  constructor(private readonly auth: AuthService) {
+    this._events.set(this.buildMockData());
+  }
 
   getEvents(): AgendaEvent[] {
     return this.userEvents();
