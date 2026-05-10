@@ -1,0 +1,49 @@
+<mat-card class="calendar-card">
+  <!-- Header: navigation + month label -->
+  <div class="calendar-header">
+    <button mat-icon-button (click)="prevMonth()" aria-label="Mes anterior">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+    <span class="month-label">{{ monthLabel }}</span>
+    <button mat-icon-button (click)="nextMonth()" aria-label="Mes siguiente">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+  </div>
+
+  <!-- Weekday names -->
+  <div class="weekday-row">
+    @for (day of weekdays; track day) {
+      <div class="weekday-cell">{{ day }}</div>
+    }
+  </div>
+
+  <!-- Day grid -->
+  @for (week of weeks(); track $index) {
+    <div class="week-row">
+      @for (day of week; track day.date.getTime()) {
+        <div
+          class="day-cell"
+          [class.current-month]="day.isCurrentMonth"
+          [class.other-month]="!day.isCurrentMonth"
+          [class.today]="day.isToday"
+          [class.has-events]="day.events.length > 0"
+          (click)="selectDay(day)"
+        >
+          <span class="day-number">{{ day.date.getDate() }}</span>
+          @if (day.events.length > 0) {
+            <div class="event-dots">
+              @for (evt of day.events; track evt.id) {
+                <span
+                  class="event-dot"
+                  [style.background-color]="evt.color || '#1976d2'"
+                  [matTooltip]="evt.title"
+                  (click)="selectEvent(evt); $event.stopPropagation()"
+                ></span>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</mat-card>

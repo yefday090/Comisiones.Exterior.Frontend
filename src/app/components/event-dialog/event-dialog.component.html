@@ -1,0 +1,59 @@
+<h2 mat-dialog-title>{{ dialogTitle }}</h2>
+
+<mat-dialog-content class="dialog-content">
+  <form #form="ngForm">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Título</mat-label>
+      <input matInput [(ngModel)]="title" name="title" required placeholder="Nombre de la comisión" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Descripción</mat-label>
+      <textarea matInput [(ngModel)]="description" name="description" rows="3" placeholder="Detalles adicionales"></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Fecha</mat-label>
+      <input matInput [matDatepicker]="picker" [(ngModel)]="date" name="date" required />
+      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+
+    <div class="time-row">
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Hora inicio</mat-label>
+        <input matInput type="time" [(ngModel)]="startTime" name="startTime" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Hora fin</mat-label>
+        <input matInput type="time" [(ngModel)]="endTime" name="endTime" />
+      </mat-form-field>
+    </div>
+
+    <div class="select-row">
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Tipo</mat-label>
+        <mat-select [(ngModel)]="tipo" name="tipo">
+          @for (t of tipos; track t) {
+            <mat-option [value]="t">{{ t }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Estado</mat-label>
+        <mat-select [(ngModel)]="estado" name="estado">
+          @for (e of estados; track e) {
+            <mat-option [value]="e">{{ e }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Cancelar</button>
+  <button mat-raised-button color="primary" (click)="save()" [disabled]="!title.trim()">Guardar</button>
+</mat-dialog-actions>

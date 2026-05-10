@@ -1,0 +1,30 @@
+.dialog-content {
+  min-width: 380px;
+  max-width: 480px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.time-row,
+.select-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.half-width {
+  flex: 1;
+}
+
+@media (max-width: 480px) {
+  .dialog-content {
+    min-width: unset;
+  }
+
+  .time-row,
+  .select-row {
+    flex-direction: column;
+    gap: 0;
+  }
+}

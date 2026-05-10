@@ -1,0 +1,113 @@
+<div class="page">
+  <div class="page-header">
+    <h2>Agendar Comisión</h2>
+    <button mat-raised-button color="primary" (click)="openNewEvent()">
+      <mat-icon>add</mat-icon>
+      Nuevo evento
+    </button>
+  </div>
+
+  <!-- Calendar -->
+  <app-calendar
+    [events]="events()"
+    (daySelected)="onDaySelected($event)"
+    (eventClick)="onEventClick($event)"
+  />
+
+  <div class="content-grid">
+    <!-- Events for selected date -->
+    <mat-card class="events-panel">
+      <mat-card-header>
+        <mat-card-title>
+          @if (selectedDate(); as d) {
+            Eventos del {{ d.getDate() }}/{{ d.getMonth() + 1 }}/{{ d.getFullYear() }}
+          } @else {
+            Seleccioná un día
+          }
+        </mat-card-title>
+      </mat-card-header>
+      <mat-divider></mat-divider>
+      <mat-card-content>
+        @if (selectedDateEvents().length === 0) {
+          <p class="empty-state">No hay eventos para este día.</p>
+        } @else {
+          @for (evt of selectedDateEvents(); track evt.id) {
+            <div
+              class="event-item"
+              [class.selected]="selectedEvent()?.id === evt.id"
+              (click)="onEventClick(evt)"
+            >
+              <span
+                class="event-color-bar"
+                [style.background-color]="evt.color || '#1976d2'"
+              ></span>
+              <div class="event-info">
+                <strong>{{ evt.title }}</strong>
+                <span class="event-time">{{ evt.startTime }} - {{ evt.endTime }}</span>
+                <span class="event-badge" [class]="evt.estado.toLowerCase()">
+                  {{ evt.estado }}
+                </span>
+              </div>
+            </div>
+          }
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Selected event detail -->
+    @if (selectedEvent(); as evt) {
+      <mat-card class="detail-panel">
+        <mat-card-header>
+          <mat-card-title>Detalle de Comisión</mat-card-title>
+        </mat-card-header>
+        <mat-divider></mat-divider>
+        <mat-card-content>
+          <div class="detail-row">
+            <span class="label">Título:</span>
+            <span>{{ evt.title }}</span>
+          </div>
+          @if (evt.description) {
+            <div class="detail-row">
+              <span class="label">Descripción:</span>
+              <span>{{ evt.description }}</span>
+            </div>
+          }
+          <div class="detail-row">
+            <span class="label">Fecha:</span>
+            <span>{{ evt.date }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Horario:</span>
+            <span>{{ evt.startTime }} - {{ evt.endTime }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Tipo:</span>
+            <span class="event-badge" [class]="evt.tipo.toLowerCase().replace(' ', '-')">
+              {{ evt.tipo }}
+            </span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Estado:</span>
+            <span class="event-badge" [class]="evt.estado.toLowerCase()">
+              {{ evt.estado }}
+            </span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Asignado a:</span>
+            <span>{{ evt.assignedTo }}</span>
+          </div>
+        </mat-card-content>
+        <mat-card-actions align="end">
+          <button mat-button color="warn" (click)="deleteEvent(evt)">
+            <mat-icon>delete</mat-icon>
+            Eliminar
+          </button>
+          <button mat-raised-button color="primary" (click)="openEditEvent(evt)">
+            <mat-icon>edit</mat-icon>
+            Editar
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    }
+  </div>
+</div>

@@ -1,0 +1,132 @@
+.calendar-card {
+  padding: 1rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0 1rem;
+
+  .month-label {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1a1a2e;
+  }
+}
+
+.weekday-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 4px;
+}
+
+.weekday-cell {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  padding: 0.25rem 0;
+}
+
+.week-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.day-cell {
+  min-height: 72px;
+  padding: 4px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+
+  &:hover {
+    background-color: #f0f0f5;
+  }
+
+  &.other-month {
+    opacity: 0.35;
+    pointer-events: none;
+  }
+
+  &.today {
+    background-color: #e3f2fd;
+
+    .day-number {
+      background-color: #1976d2;
+      color: #fff;
+      border-radius: 50%;
+      width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  &.has-events {
+    background-color: #fafafa;
+  }
+}
+
+.day-number {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #333;
+  line-height: 1;
+  padding: 2px 0;
+}
+
+.event-dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin-top: auto;
+}
+
+.event-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+
+  &:hover {
+    transform: scale(1.5);
+  }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .calendar-card {
+    padding: 0.5rem;
+  }
+
+  .day-cell {
+    min-height: 48px;
+    padding: 2px;
+  }
+
+  .day-number {
+    font-size: 0.7rem;
+  }
+
+  .event-dot {
+    width: 6px;
+    height: 6px;
+  }
+
+  .month-label {
+    font-size: 1rem;
+  }
+}
