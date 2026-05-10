@@ -20,7 +20,7 @@
           routerLinkActive="active"
           [routerLinkActiveOptions]="{ exact: true }"
           class="nav-item"
-          [title]="collapsed() ? item.label : ''"
+          [attr.data-tooltip]="collapsed() ? item.label : null"
         >
           <span class="nav-icon">{{ item.icon }}</span>
           @if (!collapsed()) {

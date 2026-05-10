@@ -188,6 +188,48 @@
 .layout.collapsed .nav-item {
   justify-content: center;
   padding: 0.7rem 0;
+  position: relative;
+
+  // Floating tooltip on hover
+  &[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: calc(100% + 10px);
+    top: 50%;
+    transform: translateY(-50%);
+    background: #1a1a2e;
+    color: #ffffff;
+    padding: 0.45rem 0.85rem;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  // Little arrow
+  &[data-tooltip]::before {
+    content: '';
+    position: absolute;
+    left: calc(100% + 4px);
+    top: 50%;
+    transform: translateY(-50%);
+    border: 6px solid transparent;
+    border-right-color: #1a1a2e;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    z-index: 100;
+  }
+
+  &:hover::after,
+  &:hover::before {
+    opacity: 1;
+  }
 }
 
 .layout.collapsed .sidebar-nav {
