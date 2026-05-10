@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from '../auth/auth.service';
 
@@ -11,12 +11,17 @@ import { AuthService } from '../auth/auth.service';
 export class DashboardComponent {
   private readonly auth = inject(AuthService);
   readonly user = this.auth.currentUser;
+  readonly collapsed = signal(false);
 
   readonly menuItems = [
     { label: 'Asignar Comisión', link: '/dashboard/asignar-comision', icon: '📋' },
     { label: 'Agendar Comisión', link: '/dashboard/agendar-comision', icon: '📅' },
     { label: 'Consultar Agenda', link: '/dashboard/consultar-agenda', icon: '🔍' },
   ];
+
+  toggle(): void {
+    this.collapsed.update((v) => !v);
+  }
 
   logout(): void {
     this.auth.logout();

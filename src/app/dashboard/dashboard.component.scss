@@ -11,17 +11,41 @@
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
+  transition: width 0.25s ease;
+  overflow: hidden;
 }
 
 .sidebar-brand {
-  padding: 1.5rem 1.25rem;
+  padding: 1.25rem 1rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 
   h1 {
     font-size: 1.15rem;
     font-weight: 700;
     margin: 0;
     letter-spacing: -0.02em;
+    white-space: nowrap;
+  }
+}
+
+// ── Toggle Button ──────────────────────────────
+.toggle-btn {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: color 0.15s ease;
+
+  &:hover {
+    color: #ffffff;
   }
 }
 
@@ -61,6 +85,7 @@
   font-size: 1.1rem;
   width: 1.5rem;
   text-align: center;
+  flex-shrink: 0;
 }
 
 .nav-label {
@@ -69,7 +94,7 @@
 
 // ── Sidebar Footer ─────────────────────────────
 .sidebar-footer {
-  padding: 1rem 1.25rem;
+  padding: 1rem;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
@@ -92,6 +117,10 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
 
   &:hover {
     background: rgba(239, 68, 68, 0.25);
@@ -104,4 +133,28 @@
   flex: 1;
   background: #f3f4f6;
   overflow-y: auto;
+}
+
+// ── Collapsed State ────────────────────────────
+.layout.collapsed .sidebar {
+  width: 64px;
+}
+
+.layout.collapsed .sidebar-brand {
+  justify-content: center;
+  padding: 1.25rem 0.5rem;
+}
+
+.layout.collapsed .nav-item {
+  justify-content: center;
+  padding: 0.7rem 0;
+}
+
+.layout.collapsed .sidebar-nav {
+  padding: 1rem 0.5rem;
+}
+
+.layout.collapsed .sidebar-footer {
+  align-items: center;
+  padding: 0.75rem 0.5rem;
 }

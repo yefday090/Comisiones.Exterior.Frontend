@@ -1,7 +1,16 @@
-<div class="layout">
+<div class="layout" [class.collapsed]="collapsed()">
   <aside class="sidebar">
     <div class="sidebar-brand">
-      <h1>Comisiones Exterior</h1>
+      <button class="toggle-btn" (click)="toggle()" [title]="collapsed() ? 'Expandir menú' : 'Colapsar menú'">
+        @if (collapsed()) {
+          ☰
+        } @else {
+          ✕
+        }
+      </button>
+      @if (!collapsed()) {
+        <h1>Comisiones Exterior</h1>
+      }
     </div>
 
     <nav class="sidebar-nav">
@@ -11,16 +20,26 @@
           routerLinkActive="active"
           [routerLinkActiveOptions]="{ exact: true }"
           class="nav-item"
+          [title]="collapsed() ? item.label : ''"
         >
           <span class="nav-icon">{{ item.icon }}</span>
-          <span class="nav-label">{{ item.label }}</span>
+          @if (!collapsed()) {
+            <span class="nav-label">{{ item.label }}</span>
+          }
         </a>
       }
     </nav>
 
     <div class="sidebar-footer">
-      <span class="user-info">{{ user() }}</span>
-      <button class="logout-btn" (click)="logout()">Cerrar sesión</button>
+      @if (!collapsed()) {
+        <span class="user-info">{{ user() }}</span>
+      }
+      @if (!collapsed()) {
+        <button class="logout-btn" (click)="logout()">Cerrar sesión</button>
+      }
+      @if (collapsed()) {
+        <button class="logout-btn icon-only" (click)="logout()" title="Cerrar sesión">🚪</button>
+      }
     </div>
   </aside>
 
