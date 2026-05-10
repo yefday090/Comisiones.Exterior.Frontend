@@ -190,9 +190,9 @@
   padding: 0.7rem 0;
   position: relative;
 
-  // Floating tooltip on hover
-  &[data-tooltip]::after {
-    content: attr(data-tooltip);
+  // Floating tooltip on hover (only when title has value)
+  &[title]:not([title=""])::after {
+    content: attr(title);
     position: absolute;
     left: calc(100% + 10px);
     top: 50%;
@@ -212,7 +212,7 @@
   }
 
   // Little arrow
-  &[data-tooltip]::before {
+  &[title]:not([title=""])::before {
     content: '';
     position: absolute;
     left: calc(100% + 4px);
