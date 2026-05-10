@@ -1,12 +1,12 @@
 <div class="layout" [class.collapsed]="collapsed()">
   <aside class="sidebar">
     <div class="sidebar-brand">
-      <button class="toggle-btn" (click)="toggle()" [title]="collapsed() ? 'Expandir menú' : 'Colapsar menú'">
-        @if (collapsed()) {
-          ☰
-        } @else {
-          ✕
-        }
+      <button class="toggle-btn" (click)="toggle()">
+        <span class="hamburger">
+          <span></span>
+          <span></span>
+          <span></span>
+        </span>
       </button>
       @if (!collapsed()) {
         <h1>Comisiones Exterior</h1>
