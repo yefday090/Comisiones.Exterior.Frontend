@@ -1,10 +1,20 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgIf, NgFor } from '@angular/common';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatTableModule } from '@angular/material/table';
 
 interface FiltroComision {
-  fechaDesde: string;
-  fechaHasta: string;
+  fechaDesde: Date | null;
+  fechaHasta: Date | null;
   tipo: string;
   asignadaA: string;
   estado: string;
@@ -12,279 +22,227 @@ interface FiltroComision {
 
 @Component({
   standalone: true,
-  imports: [FormsModule, NgIf, NgFor],
+  imports: [
+    FormsModule,
+    NgIf,
+    NgFor,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatButtonModule,
+    MatIconModule,
+    MatChipsModule,
+    MatTableModule,
+  ],
   template: `
     <div class="page">
       <h2>Asignar Comisión</h2>
       <p class="subtitle">Buscá comisiones para asignar.</p>
 
       <!-- Filtros -->
-      <div class="card filtros">
-        <h3>Filtros de búsqueda</h3>
+      <mat-card class="filtros-card">
+        <mat-card-header>
+          <mat-card-title>Filtros de búsqueda</mat-card-title>
+        </mat-card-header>
 
-        <form (ngSubmit)="buscar()" #filtroForm="ngForm">
-          <div class="filters-grid">
-            <!-- Fecha Desde -->
-            <div class="field">
-              <label for="fechaDesde">Fecha desde</label>
-              <input
-                id="fechaDesde"
-                name="fechaDesde"
-                type="date"
-                [(ngModel)]="filtro.fechaDesde"
-              />
+        <mat-card-content>
+          <form (ngSubmit)="buscar()" #filtroForm="ngForm">
+            <div class="filters-grid">
+              <!-- Fecha Desde -->
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Fecha desde</mat-label>
+                <input
+                  matInput
+                  [matDatepicker]="pickerDesde"
+                  name="fechaDesde"
+                  [(ngModel)]="filtro.fechaDesde"
+                />
+                <mat-datepicker-toggle matIconSuffix [for]="pickerDesde" />
+                <mat-datepicker #pickerDesde />
+              </mat-form-field>
+
+              <!-- Fecha Hasta -->
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Fecha hasta</mat-label>
+                <input
+                  matInput
+                  [matDatepicker]="pickerHasta"
+                  name="fechaHasta"
+                  [(ngModel)]="filtro.fechaHasta"
+                />
+                <mat-datepicker-toggle matIconSuffix [for]="pickerHasta" />
+                <mat-datepicker #pickerHasta />
+              </mat-form-field>
+
+              <!-- Tipo -->
+              <mat-form-field appearance="outline">
+                <mat-label>Tipo</mat-label>
+                <mat-select name="tipo" [(ngModel)]="filtro.tipo">
+                  <mat-option value="">Todos</mat-option>
+                  <mat-option value="Extemporanea">Extemporánea</mat-option>
+                  <mat-option value="Normal">Normal</mat-option>
+                  <mat-option value="Extra Oficial">Extra Oficial</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <!-- Asignada a -->
+              <mat-form-field appearance="outline">
+                <mat-label>Asignada a</mat-label>
+                <input
+                  matInput
+                  name="asignadaA"
+                  [(ngModel)]="filtro.asignadaA"
+                  placeholder="Nombre del funcionario"
+                />
+              </mat-form-field>
+
+              <!-- Estado -->
+              <mat-form-field appearance="outline">
+                <mat-label>Estado</mat-label>
+                <mat-select name="estado" [(ngModel)]="filtro.estado">
+                  <mat-option value="">Todos</mat-option>
+                  <mat-option value="Radicada">Radicada</mat-option>
+                  <mat-option value="Asignada">Asignada</mat-option>
+                  <mat-option value="Terminada">Terminada</mat-option>
+                </mat-select>
+              </mat-form-field>
             </div>
 
-            <!-- Fecha Hasta -->
-            <div class="field">
-              <label for="fechaHasta">Fecha hasta</label>
-              <input
-                id="fechaHasta"
-                name="fechaHasta"
-                type="date"
-                [(ngModel)]="filtro.fechaHasta"
-              />
+            <div class="form-actions">
+              <button mat-flat-button type="submit">
+                <mat-icon>search</mat-icon>
+                Buscar
+              </button>
+              <button mat-stroked-button type="button" (click)="limpiar()">
+                <mat-icon>cleaning_services</mat-icon>
+                Limpiar
+              </button>
             </div>
-
-            <!-- Tipo -->
-            <div class="field">
-              <label for="tipo">Tipo</label>
-              <select id="tipo" name="tipo" [(ngModel)]="filtro.tipo">
-                <option value="">— Todos —</option>
-                <option value="Extemporanea">Extemporánea</option>
-                <option value="Normal">Normal</option>
-                <option value="Extra Oficial">Extra Oficial</option>
-              </select>
-            </div>
-
-            <!-- Asignada a -->
-            <div class="field">
-              <label for="asignadaA">Asignada a</label>
-              <input
-                id="asignadaA"
-                name="asignadaA"
-                type="text"
-                [(ngModel)]="filtro.asignadaA"
-                placeholder="Nombre del funcionario"
-              />
-            </div>
-
-            <!-- Estado -->
-            <div class="field">
-              <label for="estado">Estado</label>
-              <select id="estado" name="estado" [(ngModel)]="filtro.estado">
-                <option value="">— Todos —</option>
-                <option value="Radicada">Radicada</option>
-                <option value="Asignada">Asignada</option>
-                <option value="Terminada">Terminada</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-actions">
-            <button type="submit" class="btn-primary">🔍 Buscar</button>
-            <button type="button" class="btn-secondary" (click)="limpiar()">Limpiar</button>
-          </div>
-        </form>
-      </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
 
       <!-- Resultados -->
-      <div class="card resultados" *ngIf="buscado">
-        <h3>Resultados</h3>
-        <p class="text-muted" *ngIf="resultados.length === 0">
-          No se encontraron comisiones con los filtros aplicados.
-        </p>
+      <mat-card class="resultados-card" *ngIf="buscado">
+        <mat-card-header>
+          <mat-card-title>Resultados</mat-card-title>
+        </mat-card-header>
 
-        <table *ngIf="resultados.length > 0">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Tipo</th>
-              <th>Asignada a</th>
-              <th>Estado</th>
-              <th>Fecha creación</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let r of resultados">
-              <td>{{ r.id }}</td>
-              <td>{{ r.tipo }}</td>
-              <td>{{ r.asignadaA }}</td>
-              <td><span class="badge" [class]="r.estado.toLowerCase()">{{ r.estado }}</span></td>
-              <td>{{ r.fechaCreacion }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+        <mat-card-content>
+          <p class="text-muted" *ngIf="resultados.length === 0">
+            No se encontraron comisiones con los filtros aplicados.
+          </p>
+
+          <table mat-table [dataSource]="resultados" *ngIf="resultados.length > 0">
+            <ng-container matColumnDef="id">
+              <th mat-header-cell *matHeaderCellDef>ID</th>
+              <td mat-cell *matCellDef="let r">{{ r.id }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="tipo">
+              <th mat-header-cell *matHeaderCellDef>Tipo</th>
+              <td mat-cell *matCellDef="let r">{{ r.tipo }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="asignadaA">
+              <th mat-header-cell *matHeaderCellDef>Asignada a</th>
+              <td mat-cell *matCellDef="let r">{{ r.asignadaA }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="estado">
+              <th mat-header-cell *matHeaderCellDef>Estado</th>
+              <td mat-cell *matCellDef="let r">
+                <mat-chip [class]="r.estado.toLowerCase()" highlighted>{{ r.estado }}</mat-chip>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="fechaCreacion">
+              <th mat-header-cell *matHeaderCellDef>Fecha creación</th>
+              <td mat-cell *matCellDef="let r">{{ r.fechaCreacion }}</td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          </table>
+        </mat-card-content>
+      </mat-card>
     </div>
   `,
   styles: [
     `
       .page {
         padding: 2rem;
-        max-width: 1100px;
+        max-width: 1200px;
       }
 
       h2 {
-        color: #1a1a2e;
         margin: 0 0 0.25rem;
         font-size: 1.5rem;
+        font-weight: 500;
       }
 
       .subtitle {
-        color: #6b7280;
         margin: 0 0 2rem;
-        font-size: 0.9rem;
+        color: rgba(0, 0, 0, 0.6);
+        font-size: 0.95rem;
       }
 
       /* ── Cards ─────────────────────────────── */
-      .card {
-        background: #ffffff;
-        border-radius: 10px;
-        padding: 1.5rem;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      .filtros-card {
         margin-bottom: 1.5rem;
       }
 
-      .card h3 {
-        margin: 0 0 1.25rem;
-        font-size: 1rem;
-        color: #1a1a2e;
+      .resultados-card {
+        margin-bottom: 1.5rem;
       }
 
       /* ── Filters Grid ──────────────────────── */
       .filters-grid {
         display: grid;
         grid-template-columns: repeat(5, 1fr);
-        gap: 1.25rem;
-        margin-bottom: 1.25rem;
+        gap: 1rem;
+        margin-bottom: 0.5rem;
       }
 
-      .field {
-        display: flex;
-        flex-direction: column;
-        gap: 0.4rem;
-      }
-
-      .field label {
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: #374151;
-        white-space: nowrap;
-      }
-
-      .field input,
-      .field select {
-        padding: 0.6rem 0.75rem;
-        border: 2px solid #e5e7eb;
-        border-radius: 8px;
-        font-size: 0.9rem;
-        outline: none;
-        transition: border-color 0.15s ease;
-        background: #ffffff;
+      .full-width {
         width: 100%;
-        box-sizing: border-box;
-      }
-
-      .field input:focus,
-      .field select:focus {
-        border-color: #0f3460;
       }
 
       /* ── Buttons ───────────────────────────── */
       .form-actions {
         display: flex;
         gap: 0.75rem;
-      }
-
-      .btn-primary {
-        padding: 0.65rem 1.5rem;
-        background: #0f3460;
-        color: #ffffff;
-        border: none;
-        border-radius: 8px;
-        font-size: 0.9rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background 0.15s ease;
-      }
-
-      .btn-primary:hover {
-        background: #16213e;
-      }
-
-      .btn-secondary {
-        padding: 0.65rem 1.5rem;
-        background: #f3f4f6;
-        color: #374151;
-        border: 2px solid #e5e7eb;
-        border-radius: 8px;
-        font-size: 0.9rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.15s ease;
-      }
-
-      .btn-secondary:hover {
-        background: #e5e7eb;
+        margin-top: 0.5rem;
       }
 
       /* ── Table ─────────────────────────────── */
       table {
         width: 100%;
-        border-collapse: collapse;
       }
 
-      th {
-        text-align: left;
-        font-size: 0.78rem;
-        font-weight: 700;
-        color: #6b7280;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        padding: 0.75rem 0.5rem;
-        border-bottom: 2px solid #e5e7eb;
+      /* ── Chips (Badges) ────────────────────── */
+      .radicada {
+        --mdc-chip-elevated-container-color: #dbeafe;
+        --mdc-chip-label-text-color: #1e40af;
       }
 
-      td {
-        padding: 0.7rem 0.5rem;
-        font-size: 0.88rem;
-        color: #374151;
-        border-bottom: 1px solid #f3f4f6;
+      .asignada {
+        --mdc-chip-elevated-container-color: #fef3c7;
+        --mdc-chip-label-text-color: #92400e;
       }
 
-      tr:hover td {
-        background: #f9fafb;
-      }
-
-      /* ── Badges ────────────────────────────── */
-      .badge {
-        display: inline-block;
-        padding: 0.2rem 0.6rem;
-        border-radius: 12px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        letter-spacing: 0.02em;
-      }
-
-      .badge.radicada {
-        background: #dbeafe;
-        color: #1e40af;
-      }
-
-      .badge.asignada {
-        background: #fef3c7;
-        color: #92400e;
-      }
-
-      .badge.terminada {
-        background: #d1fae5;
-        color: #065f46;
+      .terminada {
+        --mdc-chip-elevated-container-color: #d1fae5;
+        --mdc-chip-label-text-color: #065f46;
       }
 
       .text-muted {
-        color: #9ca3af;
-        font-size: 0.9rem;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 0.95rem;
+        padding: 1rem 0;
       }
 
       /* ── Responsive ────────────────────────── */
@@ -310,8 +268,8 @@ interface FiltroComision {
 })
 export class AsignarComisionComponent {
   filtro: FiltroComision = {
-    fechaDesde: '',
-    fechaHasta: '',
+    fechaDesde: null,
+    fechaHasta: null,
     tipo: '',
     asignadaA: '',
     estado: '',
@@ -319,6 +277,7 @@ export class AsignarComisionComponent {
 
   buscado = false;
   resultados: any[] = [];
+  displayedColumns = ['id', 'tipo', 'asignadaA', 'estado', 'fechaCreacion'];
 
   // Datos de ejemplo (reemplazar por API)
   private readonly datosMock = [
@@ -334,8 +293,8 @@ export class AsignarComisionComponent {
 
     this.resultados = this.datosMock.filter((d) => {
       const fechaOk =
-        (!this.filtro.fechaDesde || d.fechaCreacion >= this.filtro.fechaDesde) &&
-        (!this.filtro.fechaHasta || d.fechaCreacion <= this.filtro.fechaHasta);
+        (!this.filtro.fechaDesde || d.fechaCreacion >= this.formatDate(this.filtro.fechaDesde)) &&
+        (!this.filtro.fechaHasta || d.fechaCreacion <= this.formatDate(this.filtro.fechaHasta));
       const tipoOk = !this.filtro.tipo || d.tipo === this.filtro.tipo;
       const asignadoOk =
         !this.filtro.asignadaA ||
@@ -347,8 +306,15 @@ export class AsignarComisionComponent {
   }
 
   limpiar(): void {
-    this.filtro = { fechaDesde: '', fechaHasta: '', tipo: '', asignadaA: '', estado: '' };
+    this.filtro = { fechaDesde: null, fechaHasta: null, tipo: '', asignadaA: '', estado: '' };
     this.buscado = false;
     this.resultados = [];
+  }
+
+  private formatDate(date: Date): string {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
   }
 }
