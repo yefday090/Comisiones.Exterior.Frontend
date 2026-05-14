@@ -136,7 +136,38 @@
     padding: 1rem;
   }
 
-  .content-grid {
+// --- Search results ---
+.resultados-card {
+  margin-bottom: 1.5rem;
+
+  table {
+    width: 100%;
+  }
+}
+
+.text-muted {
+  color: #9ca3af;
+  font-size: 0.95rem;
+  padding: 1rem 0;
+}
+
+// Chip colors for search result estados
+.radicada {
+  --mdc-chip-elevated-container-color: #dbeafe;
+  --mdc-chip-label-text-color: #1e40af;
+}
+
+.asignada {
+  --mdc-chip-elevated-container-color: #fef3c7;
+  --mdc-chip-label-text-color: #92400e;
+}
+
+.terminada {
+  --mdc-chip-elevated-container-color: #d1fae5;
+  --mdc-chip-label-text-color: #065f46;
+}
+
+.content-grid {
     grid-template-columns: 1fr;
   }
 }

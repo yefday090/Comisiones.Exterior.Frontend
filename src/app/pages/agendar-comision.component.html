@@ -1,19 +1,80 @@
 <div class="page">
   <div class="page-header">
     <h2>Agendar Comisión</h2>
+    <button mat-stroked-button (click)="toggleCalendar()">
+      <mat-icon>{{ showCalendar() ? 'visibility_off' : 'calendar_month' }}</mat-icon>
+      {{ showCalendar() ? 'Ocultar agenda' : 'Ver agenda' }}
+    </button>
     <button mat-raised-button color="primary" (click)="openNewEvent()">
       <mat-icon>add</mat-icon>
       Nuevo evento
     </button>
   </div>
 
-  <!-- Calendar -->
-  <app-calendar
-    [events]="events()"
-    (daySelected)="onDaySelected($event)"
-    (eventClick)="onEventClick($event)"
-  />
+  @if (!showCalendar()) {
+    <!-- Search form -->
+    <app-dynamic-search-form
+      [fields]="fields"
+      (search)="onSearch($event)"
+      (clear)="onClear()"
+    />
 
+    <!-- Resultados de búsqueda -->
+    <mat-card class="resultados-card" *ngIf="buscado">
+      <mat-card-header>
+        <mat-card-title>Resultados</mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+        <p class="text-muted" *ngIf="resultados.length === 0">
+          No se encontraron comisiones con los filtros aplicados.
+        </p>
+
+        <table mat-table [dataSource]="resultados" *ngIf="resultados.length > 0">
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef>ID</th>
+            <td mat-cell *matCellDef="let r">{{ r.id }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="tipo">
+            <th mat-header-cell *matHeaderCellDef>Tipo</th>
+            <td mat-cell *matCellDef="let r">{{ r.tipo }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="asignadaA">
+            <th mat-header-cell *matHeaderCellDef>Asignada a</th>
+            <td mat-cell *matCellDef="let r">{{ r.asignadaA }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="estado">
+            <th mat-header-cell *matHeaderCellDef>Estado</th>
+            <td mat-cell *matCellDef="let r">
+              <mat-chip [class]="r.estado.toLowerCase()" highlighted>{{ r.estado }}</mat-chip>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="fechaCreacion">
+            <th mat-header-cell *matHeaderCellDef>Fecha creación</th>
+            <td mat-cell *matCellDef="let r">{{ r.fechaCreacion }}</td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  @if (showCalendar()) {
+    <!-- Calendar -->
+    <app-calendar
+      [events]="events()"
+      (daySelected)="onDaySelected($event)"
+      (eventClick)="onEventClick($event)"
+    />
+  }
+
+  @if (showCalendar()) {
   <div class="content-grid">
     <!-- Events for selected date -->
     <mat-card class="events-panel">
@@ -110,4 +171,5 @@
       </mat-card>
     }
   </div>
+  }
 </div>

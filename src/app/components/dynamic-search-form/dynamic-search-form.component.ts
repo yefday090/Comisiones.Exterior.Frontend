@@ -4,7 +4,7 @@ import {
   output,
   OnInit,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormGroup, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { NgIf, NgFor } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -20,7 +20,7 @@ import { FormFieldConfig } from '../../models/form-field.model';
   selector: 'app-dynamic-search-form',
   standalone: true,
   imports: [
-    FormsModule,
+    ReactiveFormsModule,
     NgIf,
     NgFor,
     MatCardModule,
@@ -39,7 +39,7 @@ import { FormFieldConfig } from '../../models/form-field.model';
       </mat-card-header>
 
       <mat-card-content>
-        <form (ngSubmit)="onSearch()" #form="ngForm">
+        <form [formGroup]="form">
           <div class="filters-grid">
             @for (field of fields(); track field.name) {
               @if (field.type === 'date-range') {
@@ -48,10 +48,11 @@ import { FormFieldConfig } from '../../models/form-field.model';
                   <mat-label>{{ field.label }} desde</mat-label>
                   <input
                     matInput
-                    type="date"
-                    [name]="field.name + '_desde'"
-                    [(ngModel)]="values[field.name + '_desde']"
+                    [matDatepicker]="desdePicker"
+                    [formControl]="form.get(field.name + '_desde')"
                   />
+                  <mat-datepicker-toggle matIconSuffix [for]="desdePicker" />
+                  <mat-datepicker #desdePicker />
                 </mat-form-field>
 
                 <!-- Date range: Hasta -->
@@ -59,18 +60,16 @@ import { FormFieldConfig } from '../../models/form-field.model';
                   <mat-label>{{ field.label }} hasta</mat-label>
                   <input
                     matInput
-                    type="date"
-                    [name]="field.name + '_hasta'"
-                    [(ngModel)]="values[field.name + '_hasta']"
+                    [matDatepicker]="hastaPicker"
+                    [formControl]="form.get(field.name + '_hasta')"
                   />
+                  <mat-datepicker-toggle matIconSuffix [for]="hastaPicker" />
+                  <mat-datepicker #hastaPicker />
                 </mat-form-field>
               } @else if (field.type === 'select') {
                 <mat-form-field appearance="outline">
                   <mat-label>{{ field.label }}</mat-label>
-                  <mat-select
-                    [name]="field.name"
-                    [(ngModel)]="values[field.name]"
-                  >
+                  <mat-select [formControlName]="field.name">
                     <mat-option value="">Todos</mat-option>
                     @for (opt of field.options; track opt.value) {
                       <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
@@ -82,8 +81,7 @@ import { FormFieldConfig } from '../../models/form-field.model';
                   <mat-label>{{ field.label }}</mat-label>
                   <input
                     matInput
-                    [name]="field.name"
-                    [(ngModel)]="values[field.name]"
+                    [formControlName]="field.name"
                     [placeholder]="field.placeholder || ''"
                   />
                 </mat-form-field>
@@ -92,11 +90,11 @@ import { FormFieldConfig } from '../../models/form-field.model';
           </div>
 
           <div class="form-actions">
-            <button mat-flat-button type="submit">
+            <button mat-flat-button (click)="onSearch()">
               <mat-icon>search</mat-icon>
               Buscar
             </button>
-            <button mat-stroked-button type="button" (click)="onClear()">
+            <button mat-stroked-button (click)="onClear()">
               <mat-icon>cleaning_services</mat-icon>
               Limpiar
             </button>
@@ -145,31 +143,32 @@ export class DynamicSearchFormComponent implements OnInit {
   search = output<Record<string, any>>();
   clear = output<void>();
 
-  values: Record<string, any> = {};
+  form = new FormGroup({});
 
   ngOnInit(): void {
-    this.initValues();
+    for (const field of this.fields()) {
+      if (field.type === 'date-range') {
+        this.form.addControl(field.name + '_desde', new FormControl(null));
+        this.form.addControl(field.name + '_hasta', new FormControl(null));
+      } else {
+        this.form.addControl(field.name, new FormControl(''));
+      }
+    }
   }
 
   onSearch(): void {
-    this.search.emit({ ...this.values });
+    this.search.emit(this.form.value);
   }
 
   onClear(): void {
-    this.initValues();
-    this.clear.emit();
-  }
-
-  private initValues(): void {
-    const newValues: Record<string, any> = {};
     for (const field of this.fields()) {
       if (field.type === 'date-range') {
-        newValues[field.name + '_desde'] = null;
-        newValues[field.name + '_hasta'] = null;
+        this.form.get(field.name + '_desde')!.reset(null);
+        this.form.get(field.name + '_hasta')!.reset(null);
       } else {
-        newValues[field.name] = '';
+        this.form.get(field.name)!.reset('');
       }
     }
-    this.values = newValues;
+    this.clear.emit();
   }
 }
