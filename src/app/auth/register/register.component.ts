@@ -346,7 +346,7 @@ export class RegisterComponent {
   }
 
   get allRulesMet(): boolean {
-    return this.rulesMetCount >= 4;
+    return this.rulesMetCount === 5;
   }
 
   onPasswordChange(): void {
