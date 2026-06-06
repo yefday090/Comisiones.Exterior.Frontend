@@ -18,30 +18,31 @@ html, body {
 
 // ── Snackbar Styles ────────────────────────────
 .snackbar-success {
-  --mdc-snackbar-container-color: #16a34a;
-  --mdc-snackbar-supporting-text-color: #ffffff;
-  --mat-snack-bar-button-color: #ffffff;
+  --mdc-snackbar-container-color: #0c4a6e;
+  --mdc-snackbar-supporting-text-color: #e0f2fe;
+  --mat-snack-bar-button-color: #7dd3fc;
 }
 
 .snackbar-error {
-  --mdc-snackbar-container-color: #dc2626;
-  --mdc-snackbar-supporting-text-color: #ffffff;
-  --mat-snack-bar-button-color: #ffffff;
+  --mdc-snackbar-container-color: #1e3a5f;
+  --mdc-snackbar-supporting-text-color: #e0f2fe;
+  --mat-snack-bar-button-color: #7dd3fc;
 }
 
 .snackbar-warning {
-  --mdc-snackbar-container-color: #ea580c;
-  --mdc-snackbar-supporting-text-color: #ffffff;
-  --mat-snack-bar-button-color: #ffffff;
+  --mdc-snackbar-container-color: #164e63;
+  --mdc-snackbar-supporting-text-color: #e0f2fe;
+  --mat-snack-bar-button-color: #7dd3fc;
 }
 
 .snackbar-info {
-  --mdc-snackbar-container-color: #2563eb;
-  --mdc-snackbar-supporting-text-color: #ffffff;
-  --mat-snack-bar-button-color: #ffffff;
+  --mdc-snackbar-container-color: #0f172a;
+  --mdc-snackbar-supporting-text-color: #e0f2fe;
+  --mat-snack-bar-button-color: #7dd3fc;
 }
 
 .mat-mdc-snack-bar-container {
   border-radius: 8px !important;
   margin: 1rem !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25) !important;
 }
