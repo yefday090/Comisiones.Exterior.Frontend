@@ -24,8 +24,8 @@ export class AuthService {
 
   // ── Public API ──────────────────────────────
 
-  login(email: string, password: string): Observable<LoginResponse> {
-    const body: LoginRequest = { email, password };
+  login(email: string, password: string, recaptchaToken?: string): Observable<LoginResponse> {
+    const body: LoginRequest = { email, password, recaptchaToken };
     return this.http.post<LoginResponse>(`${this.baseUrl}/login`, body).pipe(
       tap((res) => this.handleAuthSuccess(res)),
       catchError((err) => {

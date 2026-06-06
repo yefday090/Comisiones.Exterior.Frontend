@@ -30,7 +30,14 @@
         />
       </div>
 
-      <button type="submit" [disabled]="!loginForm.form.valid || loading">
+      <div class="captcha-wrapper">
+        <re-captcha
+          [siteKey]="siteKey"
+          (resolved)="onCaptchaResolved($event)"
+        />
+      </div>
+
+      <button type="submit" [disabled]="!loginForm.form.valid || loading || !captchaToken">
         {{ buttonText }}
       </button>
     </form>

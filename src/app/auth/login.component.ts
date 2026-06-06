@@ -1,12 +1,14 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { RecaptchaModule } from 'ng-recaptcha-2';
 import { AuthService } from './auth.service';
 import { NotificationService } from '../services/notification.service';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-login',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, RecaptchaModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
@@ -17,9 +19,15 @@ export class LoginComponent {
   email = '';
   password = '';
   loading = false;
+  captchaToken: string | null = null;
+  readonly siteKey = environment.recaptchaSiteKey;
 
   get buttonText(): string {
     return this.loading ? 'Iniciando sesión...' : 'Ingresar';
+  }
+
+  onCaptchaResolved(token: string | null): void {
+    this.captchaToken = token;
   }
 
   onSubmit(): void {
@@ -28,13 +36,19 @@ export class LoginComponent {
       return;
     }
 
+    if (!this.captchaToken) {
+      this.notify.warning('Completá el captcha');
+      return;
+    }
+
     this.loading = true;
-    this.auth.login(this.email.trim(), this.password).subscribe({
+    this.auth.login(this.email.trim(), this.password, this.captchaToken).subscribe({
       next: () => {
         this.loading = false;
       },
       error: (err) => {
         this.loading = false;
+        this.captchaToken = null;
         if (err.status === 401) {
           this.notify.error('Email o contraseña incorrectos');
         } else if (err.status === 0 || err.status === 504) {
