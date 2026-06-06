@@ -30,8 +30,6 @@
         />
       </div>
 
-      <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
-
       <button type="submit" [disabled]="!loginForm.form.valid || loading">
         @if (loading) {
           Iniciando sesión...

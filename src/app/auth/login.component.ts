@@ -1,27 +1,25 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { NgIf } from '@angular/common';
 import { AuthService } from './auth.service';
+import { NotificationService } from '../services/notification.service';
 
 @Component({
   selector: 'app-login',
-  imports: [FormsModule, NgIf],
+  imports: [FormsModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
 })
 export class LoginComponent {
+  private readonly auth = inject(AuthService);
+  private readonly notify = inject(NotificationService);
+
   email = '';
   password = '';
-  errorMessage = '';
   loading = false;
 
-  constructor(private readonly auth: AuthService) {}
-
   onSubmit(): void {
-    this.errorMessage = '';
-
     if (!this.email.trim() || !this.password.trim()) {
-      this.errorMessage = 'Email y contraseña son obligatorios';
+      this.notify.warning('Email y contraseña son obligatorios');
       return;
     }
 
@@ -33,11 +31,11 @@ export class LoginComponent {
       error: (err) => {
         this.loading = false;
         if (err.status === 401) {
-          this.errorMessage = 'Email o contraseña incorrectos';
-        } else if (err.status === 0) {
-          this.errorMessage = 'No se pudo conectar con el servidor';
+          this.notify.error('Email o contraseña incorrectos');
+        } else if (err.status === 0 || err.status === 504) {
+          this.notify.error('No se pudo conectar con el servidor. Verificá que el backend esté corriendo.');
         } else {
-          this.errorMessage = err.error?.message || 'Error al iniciar sesión';
+          this.notify.error(err.error?.message || 'Error al iniciar sesión');
         }
       },
     });

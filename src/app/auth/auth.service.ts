@@ -1,13 +1,15 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap, catchError, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { LoginRequest, LoginResponse, RefreshResponse, UserProfile } from './auth.models';
+import { NotificationService } from '../services/notification.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly baseUrl = `${environment.apiUrl}/auth`;
+  private readonly notify = inject(NotificationService);
 
   readonly isAuthenticated = signal(false);
   readonly currentUser = signal<string | null>(null);
@@ -69,6 +71,7 @@ export class AuthService {
       this.http.post(`${this.baseUrl}/logout`, { refreshToken: token }).subscribe();
     }
     this.clearAuth();
+    this.notify.info('Sesión cerrada');
     this.router.navigate(['/login']);
   }
 
@@ -82,6 +85,7 @@ export class AuthService {
     this.storeTokens(res.accessToken, res.refreshToken);
     this.isAuthenticated.set(true);
     this.currentUser.set(this.decodeEmail(res.accessToken));
+    this.notify.success('Inicio de sesión exitoso');
     this.router.navigate(['/dashboard']);
   }
 
