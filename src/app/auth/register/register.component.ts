@@ -53,12 +53,15 @@ interface PasswordRules {
               />
 
               <!-- Strength bar -->
-              <div class="strength-bar" *ngIf="password">
-                <div class="strength-fill" [ngClass]="strengthClass" [style.width.%]="strengthPercent"></div>
-              </div>
+              @if (password) {
+                <div class="strength-bar">
+                  <div class="strength-fill" [ngClass]="strengthClass" [style.width.%]="strengthPercent"></div>
+                </div>
+              }
 
               <!-- Rules popup -->
-              <div class="rules-popup" *ngIf="showRules && password && !allRulesMet">
+              @if (showRules && password && !allRulesMet) {
+                <div class="rules-popup">
                 <div class="rules-title">Requisitos de seguridad</div>
                 <div class="rule" [ngClass]="{ met: rules.minLength }">
                   <span class="rule-icon">{{ rules.minLength ? '✅' : '○' }}</span>
@@ -80,7 +83,8 @@ interface PasswordRules {
                   <span class="rule-icon">{{ rules.hasSpecial ? '✅' : '○' }}</span>
                   Un carácter especial (&#64;#$%&)
                 </div>
-              </div>
+                </div>
+              }
             </div>
           </div>
 
@@ -95,9 +99,11 @@ interface PasswordRules {
               autocomplete="new-password"
               required
             />
-            <div class="rule" *ngIf="confirmPassword" [ngClass]="{ met: password && password === confirmPassword }">
-              {{ password && password === confirmPassword ? '✅' : '○' }} Las contraseñas coinciden
-            </div>
+            @if (confirmPassword) {
+              <div class="rule" [ngClass]="{ met: password && password === confirmPassword }">
+                {{ password && password === confirmPassword ? '✅' : '○' }} Las contraseñas coinciden
+              </div>
+            }
           </div>
 
           <button type="submit" [disabled]="loading || form.invalid || !allRulesMet">
