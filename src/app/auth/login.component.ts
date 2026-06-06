@@ -17,6 +17,10 @@ export class LoginComponent {
   password = '';
   loading = false;
 
+  get buttonText(): string {
+    return this.loading ? 'Iniciando sesión...' : 'Ingresar';
+  }
+
   onSubmit(): void {
     if (!this.email.trim() || !this.password.trim()) {
       this.notify.warning('Email y contraseña son obligatorios');
