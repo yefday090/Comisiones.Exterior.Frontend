@@ -35,11 +35,12 @@ export class AuthService {
     );
   }
 
-  register(email: string, password: string, confirmPassword: string): Observable<void> {
+  register(email: string, password: string, confirmPassword: string, recaptchaToken?: string): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/register`, {
       email,
       password,
       confirmPassword,
+      recaptchaToken,
     });
   }
 

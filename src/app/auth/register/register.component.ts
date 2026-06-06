@@ -2,8 +2,10 @@ import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NgClass } from '@angular/common';
+import { RecaptchaModule } from 'ng-recaptcha-2';
 import { AuthService } from '../auth.service';
 import { NotificationService } from '../../services/notification.service';
+import { environment } from '../../../environments/environment';
 
 interface PasswordRules {
   minLength: boolean;
@@ -15,7 +17,7 @@ interface PasswordRules {
 
 @Component({
   standalone: true,
-  imports: [FormsModule, RouterLink, NgClass],
+  imports: [FormsModule, RouterLink, NgClass, RecaptchaModule],
   template: `
     <div class="login-wrapper">
       <div class="login-card">
@@ -106,7 +108,14 @@ interface PasswordRules {
             }
           </div>
 
-          <button type="submit" [disabled]="loading || form.invalid || !allRulesMet">
+          <div class="captcha-wrapper">
+            <re-captcha
+              [siteKey]="siteKey"
+              (resolved)="onCaptchaResolved($event)"
+            />
+          </div>
+
+          <button type="submit" [disabled]="loading || form.invalid || !allRulesMet || !captchaToken">
             {{ buttonText }}
           </button>
         </form>
@@ -265,6 +274,12 @@ interface PasswordRules {
       }
 
       /* ── Button ───────────────────────────── */
+      .captcha-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 1rem;
+      }
+
       button {
         width: 100%;
         padding: 0.75rem;
@@ -317,6 +332,8 @@ export class RegisterComponent {
   confirmPassword = '';
   loading = false;
   showRules = false;
+  captchaToken: string | null = null;
+  readonly siteKey = environment.recaptchaSiteKey;
 
   rules: PasswordRules = {
     minLength: false,
@@ -360,6 +377,10 @@ export class RegisterComponent {
     };
   }
 
+  onCaptchaResolved(token: string | null): void {
+    this.captchaToken = token;
+  }
+
   onSubmit(): void {
     if (!this.email.trim() || !this.password || !this.confirmPassword) {
       this.notify.warning('Todos los campos son obligatorios');
@@ -376,8 +397,13 @@ export class RegisterComponent {
       return;
     }
 
+    if (!this.captchaToken) {
+      this.notify.warning('Completá el captcha');
+      return;
+    }
+
     this.loading = true;
-    this.auth.register(this.email.trim(), this.password, this.confirmPassword).subscribe({
+    this.auth.register(this.email.trim(), this.password, this.confirmPassword, this.captchaToken).subscribe({
       next: () => {
         this.loading = false;
         this.notify.success('Cuenta creada. Ahora iniciá sesión.');
@@ -385,6 +411,7 @@ export class RegisterComponent {
       },
       error: (err) => {
         this.loading = false;
+        this.captchaToken = null;
         if (err.status === 409) {
           this.notify.error('El email ya está registrado');
         } else if (err.status === 0) {
