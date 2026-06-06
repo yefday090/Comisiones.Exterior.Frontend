@@ -84,3 +84,20 @@ button {
     cursor: not-allowed;
   }
 }
+
+.footer-link {
+  text-align: center;
+  margin: 1.5rem 0 0;
+  font-size: 0.85rem;
+  color: #6b7280;
+
+  a {
+    color: #0f3460;
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
