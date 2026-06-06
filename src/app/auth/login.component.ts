@@ -10,23 +10,36 @@ import { AuthService } from './auth.service';
   styleUrl: './login.component.scss',
 })
 export class LoginComponent {
-  username = '';
+  email = '';
   password = '';
   errorMessage = '';
+  loading = false;
 
   constructor(private readonly auth: AuthService) {}
 
   onSubmit(): void {
     this.errorMessage = '';
 
-    if (!this.username.trim() || !this.password.trim()) {
-      this.errorMessage = 'Usuario y contraseña son obligatorios';
+    if (!this.email.trim() || !this.password.trim()) {
+      this.errorMessage = 'Email y contraseña son obligatorios';
       return;
     }
 
-    const ok = this.auth.login(this.username.trim(), this.password);
-    if (!ok) {
-      this.errorMessage = 'Usuario o contraseña incorrectos';
-    }
+    this.loading = true;
+    this.auth.login(this.email.trim(), this.password).subscribe({
+      next: () => {
+        this.loading = false;
+      },
+      error: (err) => {
+        this.loading = false;
+        if (err.status === 401) {
+          this.errorMessage = 'Email o contraseña incorrectos';
+        } else if (err.status === 0) {
+          this.errorMessage = 'No se pudo conectar con el servidor';
+        } else {
+          this.errorMessage = err.error?.message || 'Error al iniciar sesión';
+        }
+      },
+    });
   }
 }

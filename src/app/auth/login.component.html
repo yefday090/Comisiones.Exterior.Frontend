@@ -5,14 +5,14 @@
 
     <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
       <div class="field">
-        <label for="username">Usuario</label>
+        <label for="email">Email</label>
         <input
-          id="username"
-          name="username"
-          type="text"
-          [(ngModel)]="username"
-          placeholder="admin"
-          autocomplete="username"
+          id="email"
+          name="email"
+          type="email"
+          [(ngModel)]="email"
+          placeholder="tu@email.com"
+          autocomplete="email"
           required
         />
       </div>
@@ -32,8 +32,12 @@
 
       <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
 
-      <button type="submit" [disabled]="!loginForm.form.valid">
-        Ingresar
+      <button type="submit" [disabled]="!loginForm.form.valid || loading">
+        @if (loading) {
+          Iniciando sesión...
+        } @else {
+          Ingresar
+        }
       </button>
     </form>
   </div>

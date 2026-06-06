@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { NgIf, NgFor } from '@angular/common';
+import { NgIf } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -28,7 +28,6 @@ interface ComisionRow {
   selector: 'app-agendar-comision',
   imports: [
     NgIf,
-    NgFor,
     MatButtonModule,
     MatCardModule,
     MatChipsModule,

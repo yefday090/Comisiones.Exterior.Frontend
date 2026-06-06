@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { NgIf, NgFor } from '@angular/common';
+import { NgIf } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTableModule } from '@angular/material/table';
@@ -19,7 +19,6 @@ interface ComisionRow {
   standalone: true,
   imports: [
     NgIf,
-    NgFor,
     MatCardModule,
     MatChipsModule,
     MatTableModule,

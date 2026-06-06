@@ -9,8 +9,8 @@ export class AgendaService {
 
   readonly userEvents = computed(() => {
     const user = this.auth.currentUser();
-    if (!user) return [];
-    return this._events().filter((e) => e.assignedTo === user);
+    if (!user) return this._events();
+    return this._events().filter((e) => e.assignedTo.includes(user) || e.assignedTo === 'admin');
   });
 
   constructor(private readonly auth: AuthService) {

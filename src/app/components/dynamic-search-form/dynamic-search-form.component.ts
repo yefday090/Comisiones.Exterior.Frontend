@@ -5,7 +5,6 @@ import {
   OnInit,
 } from '@angular/core';
 import { FormGroup, FormControl, ReactiveFormsModule } from '@angular/forms';
-import { NgIf, NgFor } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -21,8 +20,6 @@ import { FormFieldConfig } from '../../models/form-field.model';
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    NgIf,
-    NgFor,
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
@@ -49,7 +46,7 @@ import { FormFieldConfig } from '../../models/form-field.model';
                   <input
                     matInput
                     [matDatepicker]="desdePicker"
-                    [formControl]="form.get(field.name + '_desde')"
+                    [formControl]="getControl(field.name + '_desde')"
                   />
                   <mat-datepicker-toggle matIconSuffix [for]="desdePicker" />
                   <mat-datepicker #desdePicker />
@@ -61,7 +58,7 @@ import { FormFieldConfig } from '../../models/form-field.model';
                   <input
                     matInput
                     [matDatepicker]="hastaPicker"
-                    [formControl]="form.get(field.name + '_hasta')"
+                    [formControl]="getControl(field.name + '_hasta')"
                   />
                   <mat-datepicker-toggle matIconSuffix [for]="hastaPicker" />
                   <mat-datepicker #hastaPicker />
@@ -144,6 +141,10 @@ export class DynamicSearchFormComponent implements OnInit {
   clear = output<void>();
 
   form = new FormGroup({});
+
+  getControl(name: string): FormControl {
+    return this.form.get(name) as FormControl;
+  }
 
   ngOnInit(): void {
     for (const field of this.fields()) {

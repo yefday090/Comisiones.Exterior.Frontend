@@ -1,44 +1,124 @@
 import { Injectable, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { Observable, tap, catchError, throwError } from 'rxjs';
+import { environment } from '../../environments/environment';
+import { LoginRequest, LoginResponse, RefreshResponse, UserProfile } from './auth.models';
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class AuthService {
+  private readonly baseUrl = `${environment.apiUrl}/auth`;
+
   readonly isAuthenticated = signal(false);
   readonly currentUser = signal<string | null>(null);
+  readonly accessToken = signal<string | null>(null);
 
-  // Credenciales de demo (cambiar por API real después)
-  private readonly demoUser = 'admin';
-  private readonly demoPassword = 'admin123';
-
-  constructor(private readonly router: Router) {
-    this.checkSession();
+  constructor(
+    private readonly http: HttpClient,
+    private readonly router: Router,
+  ) {
+    this.restoreSession();
   }
 
-  login(username: string, password: string): boolean {
-    if (username === this.demoUser && password === this.demoPassword) {
-      this.isAuthenticated.set(true);
-      this.currentUser.set(username);
-      sessionStorage.setItem('auth_user', username);
-      this.router.navigate(['/dashboard']);
-      return true;
+  // ── Public API ──────────────────────────────
+
+  login(email: string, password: string): Observable<LoginResponse> {
+    const body: LoginRequest = { email, password };
+    return this.http.post<LoginResponse>(`${this.baseUrl}/login`, body).pipe(
+      tap((res) => this.handleAuthSuccess(res)),
+      catchError((err) => {
+        this.clearAuth();
+        return throwError(() => err);
+      }),
+    );
+  }
+
+  register(email: string, password: string, confirmPassword: string): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/register`, {
+      email,
+      password,
+      confirmPassword,
+    });
+  }
+
+  refreshToken(): Observable<RefreshResponse> {
+    const refreshToken = localStorage.getItem('refresh_token');
+    if (!refreshToken) {
+      this.logout();
+      return throwError(() => new Error('No refresh token'));
     }
-    return false;
+
+    return this.http
+      .post<RefreshResponse>(`${this.baseUrl}/refresh`, { refreshToken })
+      .pipe(
+        tap((res) => this.storeTokens(res.accessToken, res.refreshToken)),
+        catchError((err) => {
+          this.logout();
+          return throwError(() => err);
+        }),
+      );
+  }
+
+  getProfile(): Observable<UserProfile> {
+    return this.http.get<UserProfile>(`${this.baseUrl}/me`);
   }
 
   logout(): void {
-    this.isAuthenticated.set(false);
-    this.currentUser.set(null);
-    sessionStorage.removeItem('auth_user');
+    const token = localStorage.getItem('refresh_token');
+    if (token) {
+      this.http.post(`${this.baseUrl}/logout`, { refreshToken: token }).subscribe();
+    }
+    this.clearAuth();
     this.router.navigate(['/login']);
   }
 
-  private checkSession(): void {
-    const saved = sessionStorage.getItem('auth_user');
-    if (saved) {
+  // ── Token helpers ───────────────────────────
+
+  getAccessToken(): string | null {
+    return this.accessToken() ?? localStorage.getItem('access_token');
+  }
+
+  private handleAuthSuccess(res: LoginResponse): void {
+    this.storeTokens(res.accessToken, res.refreshToken);
+    this.isAuthenticated.set(true);
+    this.currentUser.set(this.decodeEmail(res.accessToken));
+    this.router.navigate(['/dashboard']);
+  }
+
+  private storeTokens(accessToken: string, refreshToken: string): void {
+    this.accessToken.set(accessToken);
+    localStorage.setItem('access_token', accessToken);
+    localStorage.setItem('refresh_token', refreshToken);
+  }
+
+  private clearAuth(): void {
+    this.isAuthenticated.set(false);
+    this.currentUser.set(null);
+    this.accessToken.set(null);
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+  }
+
+  private restoreSession(): void {
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      this.accessToken.set(token);
       this.isAuthenticated.set(true);
-      this.currentUser.set(saved);
+      this.currentUser.set(this.decodeEmail(token));
+    }
+  }
+
+  private decodeEmail(token: string): string {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return (
+        payload.email ??
+        payload.sub ??
+        payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'] ??
+        'Usuario'
+      );
+    } catch {
+      return 'Usuario';
     }
   }
 }
