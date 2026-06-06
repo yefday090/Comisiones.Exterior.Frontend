@@ -1,7 +1,7 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ViewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { RecaptchaModule } from 'ng-recaptcha-2';
+import { RecaptchaModule, RecaptchaComponent } from 'ng-recaptcha-2';
 import { AuthService } from './auth.service';
 import { NotificationService } from '../services/notification.service';
 import { environment } from '../../environments/environment';
@@ -15,6 +15,8 @@ import { environment } from '../../environments/environment';
 export class LoginComponent {
   private readonly auth = inject(AuthService);
   private readonly notify = inject(NotificationService);
+
+  @ViewChild(RecaptchaComponent) recaptcha!: RecaptchaComponent;
 
   email = '';
   password = '';
@@ -49,6 +51,7 @@ export class LoginComponent {
       error: (err) => {
         this.loading = false;
         this.captchaToken = null;
+        this.recaptcha?.reset();
         if (err.status === 401) {
           this.notify.error('Email o contraseña incorrectos');
         } else if (err.status === 0 || err.status === 504) {

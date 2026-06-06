@@ -1,8 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ViewChild } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { NgClass } from '@angular/common';
-import { RecaptchaModule } from 'ng-recaptcha-2';
+import { RecaptchaModule, RecaptchaComponent } from 'ng-recaptcha-2';
 import { AuthService } from '../auth.service';
 import { NotificationService } from '../../services/notification.service';
 import { environment } from '../../../environments/environment';
@@ -327,6 +327,8 @@ export class RegisterComponent {
   private readonly notify = inject(NotificationService);
   private readonly router = inject(Router);
 
+  @ViewChild(RecaptchaComponent) recaptcha!: RecaptchaComponent;
+
   email = '';
   password = '';
   confirmPassword = '';
@@ -412,6 +414,7 @@ export class RegisterComponent {
       error: (err) => {
         this.loading = false;
         this.captchaToken = null;
+        this.recaptcha?.reset();
         if (err.status === 409) {
           this.notify.error('El email ya está registrado');
         } else if (err.status === 0) {
