@@ -47,7 +47,7 @@ interface PasswordRules {
                 (ngModelChange)="onPasswordChange()"
                 (focus)="showRules = true"
                 (blur)="showRules = false"
-              placeholder="Mínimo 6 caracteres"
+              placeholder="Mínimo 8 caracteres"
               autocomplete="off"
               required
               />
@@ -65,7 +65,7 @@ interface PasswordRules {
                 <div class="rules-title">Requisitos de seguridad</div>
                 <div class="rule" [ngClass]="{ met: rules.minLength }">
                   <span class="rule-icon">{{ rules.minLength ? '✅' : '○' }}</span>
-                  Mínimo 6 caracteres
+                  Mínimo 8 caracteres
                 </div>
                 <div class="rule" [ngClass]="{ met: rules.hasUpper }">
                   <span class="rule-icon">{{ rules.hasUpper ? '✅' : '○' }}</span>
@@ -352,7 +352,7 @@ export class RegisterComponent {
   onPasswordChange(): void {
     const pwd = this.password || '';
     this.rules = {
-      minLength: pwd.length >= 6,
+      minLength: pwd.length >= 8,
       hasUpper: /[A-Z]/.test(pwd),
       hasLower: /[a-z]/.test(pwd),
       hasDigit: /[0-9]/.test(pwd),
