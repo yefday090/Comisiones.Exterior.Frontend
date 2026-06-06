@@ -1,12 +1,21 @@
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { NgClass } from '@angular/common';
 import { AuthService } from '../auth.service';
 import { NotificationService } from '../../services/notification.service';
 
+interface PasswordRules {
+  minLength: boolean;
+  hasUpper: boolean;
+  hasLower: boolean;
+  hasDigit: boolean;
+  hasSpecial: boolean;
+}
+
 @Component({
   standalone: true,
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, NgClass],
   template: `
     <div class="login-wrapper">
       <div class="login-card">
@@ -34,11 +43,35 @@ import { NotificationService } from '../../services/notification.service';
               name="password"
               type="password"
               [(ngModel)]="password"
+              (ngModelChange)="onPasswordChange()"
               placeholder="Mínimo 6 caracteres"
               autocomplete="new-password"
               required
-              minlength="6"
             />
+
+            <!-- Strength bar -->
+            <div class="strength-bar" *ngIf="password">
+              <div class="strength-fill" [ngClass]="strengthClass" [style.width.%]="strengthPercent"></div>
+            </div>
+
+            <!-- Rules checklist -->
+            <div class="rules" *ngIf="password">
+              <div class="rule" [ngClass]="{ met: rules.minLength }">
+                {{ rules.minLength ? '✅' : '○' }} Mínimo 6 caracteres
+              </div>
+              <div class="rule" [ngClass]="{ met: rules.hasUpper }">
+                {{ rules.hasUpper ? '✅' : '○' }} Al menos una mayúscula
+              </div>
+              <div class="rule" [ngClass]="{ met: rules.hasLower }">
+                {{ rules.hasLower ? '✅' : '○' }} Al menos una minúscula
+              </div>
+              <div class="rule" [ngClass]="{ met: rules.hasDigit }">
+                {{ rules.hasDigit ? '✅' : '○' }} Al menos un número
+              </div>
+              <div class="rule" [ngClass]="{ met: rules.hasSpecial }">
+                {{ rules.hasSpecial ? '✅' : '○' }} Un carácter especial (&#64;#$%&)
+              </div>
+            </div>
           </div>
 
           <div class="field">
@@ -52,9 +85,12 @@ import { NotificationService } from '../../services/notification.service';
               autocomplete="new-password"
               required
             />
+            <div class="rule" *ngIf="confirmPassword" [ngClass]="{ met: password && password === confirmPassword }">
+              {{ password && password === confirmPassword ? '✅' : '○' }} Las contraseñas coinciden
+            </div>
           </div>
 
-          <button type="submit" [disabled]="loading || form.invalid">
+          <button type="submit" [disabled]="loading || form.invalid || !allRulesMet">
             {{ buttonText }}
           </button>
         </form>
@@ -81,7 +117,7 @@ import { NotificationService } from '../../services/notification.service';
         border-radius: 12px;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         width: 100%;
-        max-width: 400px;
+        max-width: 420px;
       }
 
       h1 {
@@ -125,6 +161,56 @@ import { NotificationService } from '../../services/notification.service';
         border-color: #0f3460;
       }
 
+      /* ── Strength Bar ─────────────────────── */
+      .strength-bar {
+        height: 4px;
+        background: #e5e7eb;
+        border-radius: 2px;
+        margin-top: 0.6rem;
+        overflow: hidden;
+      }
+
+      .strength-fill {
+        height: 100%;
+        border-radius: 2px;
+        transition: width 0.3s ease, background-color 0.3s ease;
+      }
+
+      .strength-weak {
+        background-color: #dc2626;
+      }
+
+      .strength-medium {
+        background-color: #f59e0b;
+      }
+
+      .strength-good {
+        background-color: #16a34a;
+      }
+
+      .strength-strong {
+        background-color: #15803d;
+      }
+
+      /* ── Rules Checklist ──────────────────── */
+      .rules {
+        margin-top: 0.6rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+      }
+
+      .rule {
+        font-size: 0.78rem;
+        color: #9ca3af;
+        transition: color 0.2s ease;
+      }
+
+      .rule.met {
+        color: #16a34a;
+      }
+
+      /* ── Button ───────────────────────────── */
       button {
         width: 100%;
         padding: 0.75rem;
@@ -177,8 +263,46 @@ export class RegisterComponent {
   confirmPassword = '';
   loading = false;
 
+  rules: PasswordRules = {
+    minLength: false,
+    hasUpper: false,
+    hasLower: false,
+    hasDigit: false,
+    hasSpecial: false,
+  };
+
   get buttonText(): string {
     return this.loading ? 'Creando cuenta...' : 'Registrarme';
+  }
+
+  get rulesMetCount(): number {
+    return Object.values(this.rules).filter(Boolean).length;
+  }
+
+  get strengthPercent(): number {
+    return (this.rulesMetCount / 5) * 100;
+  }
+
+  get strengthClass(): string {
+    if (this.rulesMetCount <= 1) return 'strength-weak';
+    if (this.rulesMetCount <= 2) return 'strength-medium';
+    if (this.rulesMetCount <= 4) return 'strength-good';
+    return 'strength-strong';
+  }
+
+  get allRulesMet(): boolean {
+    return this.rulesMetCount >= 4;
+  }
+
+  onPasswordChange(): void {
+    const pwd = this.password || '';
+    this.rules = {
+      minLength: pwd.length >= 6,
+      hasUpper: /[A-Z]/.test(pwd),
+      hasLower: /[a-z]/.test(pwd),
+      hasDigit: /[0-9]/.test(pwd),
+      hasSpecial: /[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\/]/.test(pwd),
+    };
   }
 
   onSubmit(): void {
@@ -187,8 +311,8 @@ export class RegisterComponent {
       return;
     }
 
-    if (this.password.length < 6) {
-      this.notify.warning('La contraseña debe tener al menos 6 caracteres');
+    if (!this.allRulesMet) {
+      this.notify.warning('La contraseña no cumple con los requisitos de seguridad');
       return;
     }
 
