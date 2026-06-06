@@ -47,9 +47,9 @@ interface PasswordRules {
                 (ngModelChange)="onPasswordChange()"
                 (focus)="showRules = true"
                 (blur)="showRules = false"
-                placeholder="Mínimo 6 caracteres"
-                autocomplete="new-password"
-                required
+              placeholder="Mínimo 6 caracteres"
+              autocomplete="off"
+              required
               />
 
               <!-- Strength bar -->
@@ -96,7 +96,7 @@ interface PasswordRules {
               type="password"
               [(ngModel)]="confirmPassword"
               placeholder="Repetí la contraseña"
-              autocomplete="new-password"
+              autocomplete="off"
               required
             />
             @if (confirmPassword) {
