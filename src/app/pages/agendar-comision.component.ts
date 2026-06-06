@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { NgIf } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -42,7 +42,7 @@ interface ComisionRow {
   templateUrl: './agendar-comision.component.html',
   styleUrl: './agendar-comision.component.scss',
 })
-export class AgendarComisionComponent {
+export class AgendarComisionComponent implements OnInit {
   private readonly agenda = inject(AgendaService);
   private readonly dialog = inject(MatDialog);
   private readonly formConfig = inject(FormConfigService);
@@ -53,6 +53,10 @@ export class AgendarComisionComponent {
   readonly showCalendar = signal(false);
   readonly selectedDate = signal<Date | null>(null);
   readonly selectedEvent = signal<AgendaEvent | null>(null);
+
+  ngOnInit(): void {
+    this.agenda.loadEvents();
+  }
 
   // --- Search results ---
   buscado = false;
