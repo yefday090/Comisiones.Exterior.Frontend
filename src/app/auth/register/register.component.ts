@@ -38,38 +38,48 @@ interface PasswordRules {
 
           <div class="field">
             <label for="password">Contraseña</label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              [(ngModel)]="password"
-              (ngModelChange)="onPasswordChange()"
-              placeholder="Mínimo 6 caracteres"
-              autocomplete="new-password"
-              required
-            />
+            <div class="password-wrapper">
+              <input
+                id="password"
+                name="password"
+                type="password"
+                [(ngModel)]="password"
+                (ngModelChange)="onPasswordChange()"
+                (focus)="showRules = true"
+                (blur)="showRules = false"
+                placeholder="Mínimo 6 caracteres"
+                autocomplete="new-password"
+                required
+              />
 
-            <!-- Strength bar -->
-            <div class="strength-bar" *ngIf="password">
-              <div class="strength-fill" [ngClass]="strengthClass" [style.width.%]="strengthPercent"></div>
-            </div>
+              <!-- Strength bar -->
+              <div class="strength-bar" *ngIf="password">
+                <div class="strength-fill" [ngClass]="strengthClass" [style.width.%]="strengthPercent"></div>
+              </div>
 
-            <!-- Rules checklist -->
-            <div class="rules" *ngIf="password">
-              <div class="rule" [ngClass]="{ met: rules.minLength }">
-                {{ rules.minLength ? '✅' : '○' }} Mínimo 6 caracteres
-              </div>
-              <div class="rule" [ngClass]="{ met: rules.hasUpper }">
-                {{ rules.hasUpper ? '✅' : '○' }} Al menos una mayúscula
-              </div>
-              <div class="rule" [ngClass]="{ met: rules.hasLower }">
-                {{ rules.hasLower ? '✅' : '○' }} Al menos una minúscula
-              </div>
-              <div class="rule" [ngClass]="{ met: rules.hasDigit }">
-                {{ rules.hasDigit ? '✅' : '○' }} Al menos un número
-              </div>
-              <div class="rule" [ngClass]="{ met: rules.hasSpecial }">
-                {{ rules.hasSpecial ? '✅' : '○' }} Un carácter especial (&#64;#$%&)
+              <!-- Rules popup -->
+              <div class="rules-popup" *ngIf="showRules && password && !allRulesMet">
+                <div class="rules-title">Requisitos de seguridad</div>
+                <div class="rule" [ngClass]="{ met: rules.minLength }">
+                  <span class="rule-icon">{{ rules.minLength ? '✅' : '○' }}</span>
+                  Mínimo 6 caracteres
+                </div>
+                <div class="rule" [ngClass]="{ met: rules.hasUpper }">
+                  <span class="rule-icon">{{ rules.hasUpper ? '✅' : '○' }}</span>
+                  Al menos una mayúscula
+                </div>
+                <div class="rule" [ngClass]="{ met: rules.hasLower }">
+                  <span class="rule-icon">{{ rules.hasLower ? '✅' : '○' }}</span>
+                  Al menos una minúscula
+                </div>
+                <div class="rule" [ngClass]="{ met: rules.hasDigit }">
+                  <span class="rule-icon">{{ rules.hasDigit ? '✅' : '○' }}</span>
+                  Al menos un número
+                </div>
+                <div class="rule" [ngClass]="{ met: rules.hasSpecial }">
+                  <span class="rule-icon">{{ rules.hasSpecial ? '✅' : '○' }}</span>
+                  Un carácter especial (&#64;#$%&)
+                </div>
               </div>
             </div>
           </div>
@@ -192,22 +202,60 @@ interface PasswordRules {
         background-color: #15803d;
       }
 
-      /* ── Rules Checklist ──────────────────── */
-      .rules {
-        margin-top: 0.6rem;
+      /* ── Password Wrapper ─────────────────── */
+      .password-wrapper {
+        position: relative;
+      }
+
+      /* ── Rules Popup ──────────────────────── */
+      .rules-popup {
+        position: absolute;
+        top: calc(100% + 0.5rem);
+        left: 0;
+        right: 0;
+        background: #1a1a2e;
+        color: #e5e7eb;
+        padding: 1rem;
+        border-radius: 10px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+        z-index: 10;
         display: flex;
         flex-direction: column;
-        gap: 0.2rem;
+        gap: 0.35rem;
+        animation: fadeIn 0.15s ease;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-4px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .rules-title {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #7dd3fc;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 0.25rem;
       }
 
       .rule {
-        font-size: 0.78rem;
+        font-size: 0.8rem;
         color: #9ca3af;
-        transition: color 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+
+      .rule-icon {
+        font-size: 0.85rem;
+        width: 1.1rem;
+        text-align: center;
+        flex-shrink: 0;
       }
 
       .rule.met {
-        color: #16a34a;
+        color: #6ee7b7;
       }
 
       /* ── Button ───────────────────────────── */
@@ -262,6 +310,7 @@ export class RegisterComponent {
   password = '';
   confirmPassword = '';
   loading = false;
+  showRules = false;
 
   rules: PasswordRules = {
     minLength: false,
