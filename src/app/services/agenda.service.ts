@@ -17,14 +17,10 @@ export class AgendaService {
     return this._events();
   });
 
-  private _loaded = false;
-
   loadEvents(): void {
-    if (this._loaded) return;
     this.crud.getAll().subscribe({
       next: (data) => {
         this._events.set(data.map((e) => this.mapToEvent(e)));
-        this._loaded = true;
       },
       error: () => {
         this.notify.error('Error al cargar los eventos');
