@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { NgIf } from '@angular/common';
+import { NgIf, NgFor } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTableModule } from '@angular/material/table';
 import { FormFieldConfig } from '../models/form-field.model';
 import { FormConfigService } from '../services/form-config.service';
 import { DynamicSearchFormComponent } from '../components/dynamic-search-form/dynamic-search-form.component';
+import { AgendaCrudService, AgendaSearchFilters } from '../services/agenda-crud.service';
 
 interface ComisionRow {
   id: string;
@@ -139,15 +140,10 @@ export class AsignarComisionComponent implements OnInit {
   resultados: ComisionRow[] = [];
   displayedColumns = ['id', 'tipo', 'asignadaA', 'estado', 'fechaCreacion'];
 
-  private readonly datosMock: ComisionRow[] = [
-    { id: 'COM-001', tipo: 'Normal', asignadaA: 'Carlos Pérez', estado: 'Radicada', fechaCreacion: '2026-05-01' },
-    { id: 'COM-002', tipo: 'Extemporanea', asignadaA: 'María López', estado: 'Asignada', fechaCreacion: '2026-04-28' },
-    { id: 'COM-003', tipo: 'Extra Oficial', asignadaA: 'Juan Ríos', estado: 'Terminada', fechaCreacion: '2026-04-15' },
-    { id: 'COM-004', tipo: 'Normal', asignadaA: 'Ana Torres', estado: 'Asignada', fechaCreacion: '2026-05-05' },
-    { id: 'COM-005', tipo: 'Normal', asignadaA: 'Carlos Pérez', estado: 'Radicada', fechaCreacion: '2026-05-08' },
-  ];
-
-  constructor(private formConfig: FormConfigService) {}
+  constructor(
+    private formConfig: FormConfigService,
+    private agendaCrud: AgendaCrudService,
+  ) {}
 
   ngOnInit(): void {
     this.fields = this.formConfig.getSearchFields();
@@ -162,15 +158,26 @@ export class AsignarComisionComponent implements OnInit {
     const asignadaA = values['asignadaA'] as string;
     const estado = values['estado'] as string;
 
-    this.resultados = this.datosMock.filter((d) => {
-      const fechaOk =
-        (!fechaDesde || d.fechaCreacion >= this.formatDate(fechaDesde)) &&
-        (!fechaHasta || d.fechaCreacion <= this.formatDate(fechaHasta));
-      const tipoOk = !tipo || d.tipo === tipo;
-      const asignadoOk = !asignadaA || d.asignadaA.toLowerCase().includes(asignadaA.toLowerCase());
-      const estadoOk = !estado || d.estado === estado;
+    const filters: AgendaSearchFilters = {};
+    if (fechaDesde) filters.dateFrom = this.formatDate(fechaDesde);
+    if (fechaHasta) filters.dateTo = this.formatDate(fechaHasta);
+    if (tipo) filters.type = this.tipoToValue(tipo);
+    if (asignadaA) filters.assignedTo = asignadaA;
+    if (estado) filters.status = this.estadoToValue(estado);
 
-      return fechaOk && tipoOk && asignadoOk && estadoOk;
+    this.agendaCrud.getAll(filters).subscribe({
+      next: (data) => {
+        this.resultados = data.map((e) => ({
+          id: e.id.substring(0, 8),
+          tipo: e.type.description,
+          asignadaA: e.assignedTo ?? '',
+          estado: e.status.description,
+          fechaCreacion: e.date,
+        }));
+      },
+      error: () => {
+        this.resultados = [];
+      },
     });
   }
 
@@ -184,5 +191,15 @@ export class AsignarComisionComponent implements OnInit {
     const m = String(date.getMonth() + 1).padStart(2, '0');
     const d = String(date.getDate()).padStart(2, '0');
     return `${y}-${m}-${d}`;
+  }
+
+  private tipoToValue(tipo: string): number {
+    const map: Record<string, number> = { Normal: 0, Extemporanea: 1, 'Extra Oficial': 2 };
+    return map[tipo] ?? 0;
+  }
+
+  private estadoToValue(estado: string): number {
+    const map: Record<string, number> = { Radicada: 0, Asignada: 1, Terminada: 2 };
+    return map[estado] ?? 0;
   }
 }
