@@ -26,8 +26,8 @@ export interface CreateAgendaEventRequest {
   date: string;
   startTime?: string;
   endTime?: string;
-  type: string;
-  status: string;
+  type: EnumValue;
+  status: EnumValue;
   assignedTo?: string;
 }
 
@@ -37,8 +37,8 @@ export interface UpdateAgendaEventRequest {
   date: string;
   startTime?: string;
   endTime?: string;
-  type: string;
-  status: string;
+  type: EnumValue;
+  status: EnumValue;
   assignedTo?: string;
 }
 

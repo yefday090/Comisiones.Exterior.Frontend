@@ -95,8 +95,8 @@ export class AgendaService {
       date: event.date,
       startTime: event.startTime || undefined,
       endTime: event.endTime || undefined,
-      type: event.tipo,
-      status: event.estado,
+      type: { value: this.typeToValue(event.tipo), description: event.tipo },
+      status: { value: this.statusToValue(event.estado), description: event.estado },
       assignedTo: event.assignedTo || undefined,
     };
   }
@@ -113,5 +113,15 @@ export class AgendaService {
       'Extra Oficial': '#9c27b0',
     };
     return map[type] ?? '#1976d2';
+  }
+
+  private typeToValue(tipo: string): string {
+    const map: Record<string, string> = { Normal: '0', Extemporanea: '1', 'Extra Oficial': '2' };
+    return map[tipo] ?? '0';
+  }
+
+  private statusToValue(estado: string): string {
+    const map: Record<string, string> = { Pendiente: '0', Confirmada: '1', Cancelada: '2' };
+    return map[estado] ?? '0';
   }
 }
