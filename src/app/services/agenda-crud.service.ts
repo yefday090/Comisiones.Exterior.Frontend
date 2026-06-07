@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
@@ -42,13 +42,29 @@ export interface UpdateAgendaEventRequest {
   assignedTo?: string;
 }
 
+export interface AgendaSearchFilters {
+  dateFrom?: string;
+  dateTo?: string;
+  type?: number;
+  assignedTo?: string;
+  status?: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AgendaCrudService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.agendaApiUrl}/api/agenda`;
 
-  getAll(): Observable<AgendaEventApi[]> {
-    return this.http.get<AgendaEventApi[]>(this.baseUrl);
+  getAll(filters?: AgendaSearchFilters): Observable<AgendaEventApi[]> {
+    let params = new HttpParams();
+    if (filters) {
+      if (filters.dateFrom) params = params.set('dateFrom', filters.dateFrom);
+      if (filters.dateTo) params = params.set('dateTo', filters.dateTo);
+      if (filters.type !== undefined && filters.type !== null) params = params.set('type', filters.type);
+      if (filters.assignedTo) params = params.set('assignedTo', filters.assignedTo);
+      if (filters.status !== undefined && filters.status !== null) params = params.set('status', filters.status);
+    }
+    return this.http.get<AgendaEventApi[]>(this.baseUrl, { params });
   }
 
   getById(id: string): Observable<AgendaEventApi> {

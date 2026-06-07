@@ -1,7 +1,7 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { AuthService } from '../auth/auth.service';
 import { AgendaEvent } from '../models/agenda-event.model';
-import { AgendaCrudService, AgendaEventApi, CreateAgendaEventRequest, UpdateAgendaEventRequest } from './agenda-crud.service';
+import { AgendaCrudService, AgendaEventApi, CreateAgendaEventRequest, UpdateAgendaEventRequest, AgendaSearchFilters } from './agenda-crud.service';
 import { NotificationService } from './notification.service';
 
 @Injectable({ providedIn: 'root' })
@@ -17,8 +17,8 @@ export class AgendaService {
     return this._events();
   });
 
-  loadEvents(): void {
-    this.crud.getAll().subscribe({
+  loadEvents(filters?: AgendaSearchFilters): void {
+    this.crud.getAll(filters).subscribe({
       next: (data) => {
         this._events.set(data.map((e) => this.mapToEvent(e)));
       },
