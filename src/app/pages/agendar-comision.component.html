@@ -20,17 +20,17 @@
     />
 
     <!-- Resultados de búsqueda -->
-    <mat-card class="resultados-card" *ngIf="buscado">
+    <mat-card class="resultados-card" *ngIf="buscado()">
       <mat-card-header>
         <mat-card-title>Resultados</mat-card-title>
       </mat-card-header>
 
       <mat-card-content>
-        <p class="text-muted" *ngIf="resultados.length === 0">
+        <p class="text-muted" *ngIf="resultados().length === 0">
           No se encontraron comisiones con los filtros aplicados.
         </p>
 
-        <table mat-table [dataSource]="resultados" *ngIf="resultados.length > 0">
+        <table mat-table [dataSource]="resultados()" *ngIf="resultados().length > 0">
           <ng-container matColumnDef="id">
             <th mat-header-cell *matHeaderCellDef>ID</th>
             <td mat-cell *matCellDef="let r">{{ r.id }}</td>

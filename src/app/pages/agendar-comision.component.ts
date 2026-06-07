@@ -61,8 +61,8 @@ export class AgendarComisionComponent implements OnInit {
   }
 
   // --- Search results ---
-  buscado = false;
-  resultados: ComisionRow[] = [];
+  buscado = signal(false);
+  resultados = signal<ComisionRow[]>([]);
   displayedColumns = ['id', 'tipo', 'asignadaA', 'estado', 'fechaCreacion'];
 
   get selectedDateEvents(): AgendaEvent[] {
@@ -77,7 +77,7 @@ export class AgendarComisionComponent implements OnInit {
   }
 
   onSearch(values: Record<string, any>): void {
-    this.buscado = true;
+    this.buscado.set(true);
 
     const fechaDesde = values['fechaCreacion_desde'] as Date | null;
     const fechaHasta = values['fechaCreacion_hasta'] as Date | null;
@@ -94,23 +94,23 @@ export class AgendarComisionComponent implements OnInit {
 
     this.agendaCrud.getAll(filters).subscribe({
       next: (data) => {
-        this.resultados = data.map((e) => ({
+        this.resultados.set(data.map((e) => ({
           id: e.id.substring(0, 8),
           tipo: e.type.description,
           asignadaA: e.assignedTo ?? '',
           estado: e.status.description,
           fechaCreacion: e.date,
-        }));
+        })));
       },
       error: () => {
-        this.resultados = [];
+        this.resultados.set([]);
       },
     });
   }
 
   onClear(): void {
-    this.buscado = false;
-    this.resultados = [];
+    this.buscado.set(false);
+    this.resultados.set([]);
   }
 
   onDaySelected(date: Date): void {
