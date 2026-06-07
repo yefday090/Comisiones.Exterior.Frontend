@@ -34,9 +34,9 @@ export class FormConfigService {
         label: 'Estado',
         type: 'select',
         options: [
-          { value: 'Radicada', label: 'Radicada' },
-          { value: 'Asignada', label: 'Asignada' },
-          { value: 'Terminada', label: 'Terminada' },
+          { value: 'Pendiente', label: 'Pendiente' },
+          { value: 'Confirmada', label: 'Confirmada' },
+          { value: 'Cancelada', label: 'Cancelada' },
         ],
         order: 4,
       },

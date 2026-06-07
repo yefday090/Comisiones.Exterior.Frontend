@@ -199,7 +199,7 @@ export class AsignarComisionComponent implements OnInit {
   }
 
   private estadoToValue(estado: string): number {
-    const map: Record<string, number> = { Radicada: 0, Asignada: 1, Terminada: 2 };
+    const map: Record<string, number> = { Pendiente: 0, Confirmada: 1, Cancelada: 2 };
     return map[estado] ?? 0;
   }
 }
