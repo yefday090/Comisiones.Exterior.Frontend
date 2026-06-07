@@ -1,13 +1,27 @@
 <mat-card class="calendar-card">
-  <!-- Header: navigation + month label -->
+  <!-- Header -->
   <div class="calendar-header">
-    <button mat-icon-button (click)="prevMonth()" aria-label="Mes anterior">
-      <mat-icon>chevron_left</mat-icon>
-    </button>
-    <span class="month-label">{{ monthLabel() }}</span>
-    <button mat-icon-button (click)="nextMonth()" aria-label="Mes siguiente">
-      <mat-icon>chevron_right</mat-icon>
-    </button>
+    <div class="header-left">
+      <button mat-icon-button (click)="prev()">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      <span class="header-label">{{ headerLabel() }}</span>
+      <button mat-icon-button (click)="next()">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+      <button mat-stroked-button class="today-btn" (click)="today()">Hoy</button>
+    </div>
+
+    <div class="header-right">
+      <mat-button-toggle-group [value]="viewMode()" (change)="setView($event.value)">
+        <mat-button-toggle value="month">
+          <mat-icon>calendar_month</mat-icon>
+        </mat-button-toggle>
+        <mat-button-toggle value="week">
+          <mat-icon>view_week</mat-icon>
+        </mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
   </div>
 
   <!-- Weekday names -->
@@ -19,7 +33,7 @@
 
   <!-- Day grid -->
   @for (week of weeks(); track $index) {
-    <div class="week-row">
+    <div class="week-row" [class.week-view]="viewMode() === 'week'">
       @for (day of week; track day.date.getTime()) {
         <div
           class="day-cell"
@@ -30,17 +44,35 @@
           (click)="selectDay(day)"
         >
           <span class="day-number">{{ day.date.getDate() }}</span>
-          @if (day.events.length > 0) {
-            <div class="event-dots">
+
+          @if (viewMode() === 'week') {
+            <!-- Week view: show event titles -->
+            <div class="event-list">
               @for (evt of day.events; track evt.id) {
-                <span
-                  class="event-dot"
+                <div
+                  class="event-chip"
                   [style.background-color]="evt.color || '#1976d2'"
-                  [matTooltip]="evt.title"
                   (click)="selectEvent(evt); $event.stopPropagation()"
-                ></span>
+                >
+                  <span class="event-time">{{ evt.startTime }}</span>
+                  <span class="event-title">{{ evt.title }}</span>
+                </div>
               }
             </div>
+          } @else {
+            <!-- Month view: show dots -->
+            @if (day.events.length > 0) {
+              <div class="event-dots">
+                @for (evt of day.events; track evt.id) {
+                  <span
+                    class="event-dot"
+                    [style.background-color]="evt.color || '#1976d2'"
+                    [matTooltip]="evt.title"
+                    (click)="selectEvent(evt); $event.stopPropagation()"
+                  ></span>
+                }
+              </div>
+            }
           }
         </div>
       }

@@ -1,6 +1,6 @@
 .calendar-card {
   padding: 1rem;
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
 }
 
@@ -9,12 +9,27 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.5rem 0 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
 
-  .month-label {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #1a1a2e;
-  }
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.header-label {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  min-width: 180px;
+  text-align: center;
+}
+
+.today-btn {
+  margin-left: 0.5rem;
+  font-size: 0.8rem;
 }
 
 .weekday-row {
@@ -37,6 +52,10 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 2px;
+
+  &.week-view .day-cell {
+    min-height: 120px;
+  }
 }
 
 .day-cell {
@@ -47,8 +66,8 @@
   transition: background-color 0.15s ease;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
   gap: 2px;
+  overflow: hidden;
 
   &:hover {
     background-color: #f0f0f5;
@@ -85,8 +104,10 @@
   color: #333;
   line-height: 1;
   padding: 2px 0;
+  flex-shrink: 0;
 }
 
+// ── Month view: dots ──────────────────────────
 .event-dots {
   display: flex;
   flex-wrap: wrap;
@@ -106,6 +127,44 @@
   }
 }
 
+// ── Week view: event chips ────────────────────
+.event-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.event-chip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  color: #fff;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &:hover {
+    filter: brightness(1.1);
+  }
+}
+
+.event-time {
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.event-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* Responsive */
 @media (max-width: 600px) {
   .calendar-card {
@@ -117,6 +176,10 @@
     padding: 2px;
   }
 
+  .week-row.week-view .day-cell {
+    min-height: 80px;
+  }
+
   .day-number {
     font-size: 0.7rem;
   }
@@ -126,7 +189,12 @@
     height: 6px;
   }
 
-  .month-label {
-    font-size: 1rem;
+  .header-label {
+    font-size: 0.9rem;
+    min-width: auto;
+  }
+
+  .event-chip {
+    font-size: 0.62rem;
   }
 }

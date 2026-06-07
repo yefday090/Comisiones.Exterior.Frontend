@@ -3,6 +3,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { AgendaEvent } from '../../models/agenda-event.model';
 
 interface CalendarDay {
@@ -20,7 +21,7 @@ const WEEKDAYS_ES = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 
 @Component({
   selector: 'app-calendar',
-  imports: [MatButtonModule, MatCardModule, MatTooltipModule, MatIconModule],
+  imports: [MatButtonModule, MatCardModule, MatTooltipModule, MatIconModule, MatButtonToggleModule],
   templateUrl: './calendar.component.html',
   styleUrl: './calendar.component.scss',
 })
@@ -29,10 +30,19 @@ export class CalendarComponent {
   readonly daySelected = output<Date>();
   readonly eventClick = output<AgendaEvent>();
 
+  readonly viewMode = signal<'month' | 'week'>('month');
   readonly currentMonth = signal(new Date());
+  readonly currentWeekStart = signal(this._getWeekStart(new Date()));
 
   readonly weeks = computed<CalendarDay[][]>(() => {
     const now = new Date();
+    const evts = this.events();
+
+    if (this.viewMode() === 'week') {
+      return [this._buildWeek(this.currentWeekStart(), evts, now)];
+    }
+
+    // Month view
     const view = this.currentMonth();
     const year = view.getFullYear();
     const month = view.getMonth();
@@ -42,7 +52,6 @@ export class CalendarComponent {
     if (startOffset < 0) startOffset = 6;
 
     const startDate = new Date(year, month, 1 - startOffset);
-    const evts = this.events();
     const weeks: CalendarDay[][] = [];
 
     for (let w = 0; w < 6; w++) {
@@ -52,13 +61,11 @@ export class CalendarComponent {
         date.setDate(startDate.getDate() + w * 7 + d);
 
         const dateStr = this._formatDate(date);
-        const dayEvents = evts.filter((e) => e.date === dateStr);
-
         week.push({
           date: new Date(date),
           isCurrentMonth: date.getMonth() === month,
           isToday: this._isSameDay(date, now),
-          events: dayEvents,
+          events: evts.filter((e) => e.date === dateStr),
         });
       }
       weeks.push(week);
@@ -67,19 +74,53 @@ export class CalendarComponent {
     return weeks;
   });
 
-  readonly monthLabel = computed(() => {
+  readonly headerLabel = computed(() => {
+    if (this.viewMode() === 'week') {
+      const start = this.currentWeekStart();
+      const end = new Date(start);
+      end.setDate(end.getDate() + 6);
+      return `${start.getDate()} ${MONTHS_ES[start.getMonth()]} — ${end.getDate()} ${MONTHS_ES[end.getMonth()]} ${end.getFullYear()}`;
+    }
     const view = this.currentMonth();
     return `${MONTHS_ES[view.getMonth()]} ${view.getFullYear()}`;
   });
 
   readonly weekdays = WEEKDAYS_ES;
 
-  prevMonth(): void {
-    this.currentMonth.update((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1));
+  setView(mode: 'month' | 'week'): void {
+    this.viewMode.set(mode);
   }
 
-  nextMonth(): void {
-    this.currentMonth.update((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1));
+  prev(): void {
+    if (this.viewMode() === 'week') {
+      this.currentWeekStart.update((d) => {
+        const n = new Date(d);
+        n.setDate(n.getDate() - 7);
+        return n;
+      });
+    } else {
+      this.currentMonth.update((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1));
+    }
+  }
+
+  next(): void {
+    if (this.viewMode() === 'week') {
+      this.currentWeekStart.update((d) => {
+        const n = new Date(d);
+        n.setDate(n.getDate() + 7);
+        return n;
+      });
+    } else {
+      this.currentMonth.update((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1));
+    }
+  }
+
+  today(): void {
+    if (this.viewMode() === 'week') {
+      this.currentWeekStart.set(this._getWeekStart(new Date()));
+    } else {
+      this.currentMonth.set(new Date());
+    }
   }
 
   selectDay(day: CalendarDay): void {
@@ -88,6 +129,32 @@ export class CalendarComponent {
 
   selectEvent(event: AgendaEvent): void {
     this.eventClick.emit(event);
+  }
+
+  private _buildWeek(startDate: Date, evts: AgendaEvent[], now: Date): CalendarDay[] {
+    const month = startDate.getMonth();
+    const week: CalendarDay[] = [];
+    for (let d = 0; d < 7; d++) {
+      const date = new Date(startDate);
+      date.setDate(date.getDate() + d);
+      const dateStr = this._formatDate(date);
+      week.push({
+        date: new Date(date),
+        isCurrentMonth: date.getMonth() === month,
+        isToday: this._isSameDay(date, now),
+        events: evts.filter((e) => e.date === dateStr),
+      });
+    }
+    return week;
+  }
+
+  private _getWeekStart(date: Date): Date {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = day === 0 ? -6 : 1 - day;
+    d.setDate(d.getDate() + diff);
+    d.setHours(0, 0, 0, 0);
+    return d;
   }
 
   private _isSameDay(a: Date, b: Date): boolean {
