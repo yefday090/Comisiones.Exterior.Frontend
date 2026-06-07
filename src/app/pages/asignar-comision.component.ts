@@ -3,10 +3,12 @@ import { NgIf, NgFor } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTableModule } from '@angular/material/table';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { FormFieldConfig } from '../models/form-field.model';
 import { FormConfigService } from '../services/form-config.service';
 import { DynamicSearchFormComponent } from '../components/dynamic-search-form/dynamic-search-form.component';
-import { AgendaCrudService, AgendaSearchFilters } from '../services/agenda-crud.service';
+import { AgendaCrudService, AgendaSearchFilters, AgendaEventApi } from '../services/agenda-crud.service';
 
 interface ComisionRow {
   id: string;
@@ -23,6 +25,8 @@ interface ComisionRow {
     MatCardModule,
     MatChipsModule,
     MatTableModule,
+    MatButtonModule,
+    MatIconModule,
     DynamicSearchFormComponent,
   ],
   template: `
@@ -74,6 +78,15 @@ interface ComisionRow {
             <ng-container matColumnDef="fechaCreacion">
               <th mat-header-cell *matHeaderCellDef>Fecha creación</th>
               <td mat-cell *matCellDef="let r">{{ r.fechaCreacion }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="acciones">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let r; let i = index">
+                <button mat-icon-button color="primary" (click)="asignar(i)" matTooltip="Asignar a usuario">
+                  <mat-icon>person_add</mat-icon>
+                </button>
+              </td>
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
@@ -138,7 +151,8 @@ export class AsignarComisionComponent implements OnInit {
 
   buscado = signal(false);
   resultados = signal<ComisionRow[]>([]);
-  displayedColumns = ['id', 'tipo', 'asignadaA', 'estado', 'fechaCreacion'];
+  displayedColumns = ['id', 'tipo', 'asignadaA', 'estado', 'fechaCreacion', 'acciones'];
+  private eventosRaw: AgendaEventApi[] = [];
 
   constructor(
     private formConfig: FormConfigService,
@@ -167,6 +181,7 @@ export class AsignarComisionComponent implements OnInit {
 
     this.agendaCrud.getAll(filters).subscribe({
       next: (data) => {
+        this.eventosRaw = data;
         this.resultados.set(data.map((e) => ({
           id: e.id.substring(0, 8),
           tipo: e.type.description,
@@ -178,6 +193,32 @@ export class AsignarComisionComponent implements OnInit {
       error: () => {
         this.resultados.set([]);
       },
+    });
+  }
+
+  asignar(index: number): void {
+    const raw = this.eventosRaw[index];
+    if (!raw) return;
+
+    const nombre = prompt('Nombre del usuario a asignar:', raw.assignedTo ?? '');
+    if (!nombre) return;
+
+    this.agendaCrud.update(raw.id, {
+      title: raw.title,
+      description: raw.description ?? undefined,
+      date: raw.date,
+      startTime: raw.startTime ?? undefined,
+      endTime: raw.endTime ?? undefined,
+      type: raw.type,
+      status: raw.status,
+      assignedTo: nombre.trim(),
+    }).subscribe({
+      next: () => {
+        const resultados = this.resultados();
+        resultados[index] = { ...resultados[index], asignadaA: nombre.trim() };
+        this.resultados.set([...resultados]);
+      },
+      error: () => {},
     });
   }
 
