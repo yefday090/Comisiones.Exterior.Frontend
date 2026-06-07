@@ -76,11 +76,16 @@ export class AgendaService {
       date: api.date,
       startTime: api.startTime ?? '',
       endTime: api.endTime ?? '',
-      tipo: (api.type === 'ExtraOficial' ? 'Extra Oficial' : api.type) as AgendaEvent['tipo'],
-      estado: api.status as AgendaEvent['estado'],
+      tipo: this.mapType(api.type.description),
+      estado: api.status.description as AgendaEvent['estado'],
       assignedTo: api.assignedTo ?? '',
-      color: this.colorForType(api.type),
+      color: this.colorForType(api.type.description),
     };
+  }
+
+  private mapType(desc: string): AgendaEvent['tipo'] {
+    if (desc === 'ExtraOficial') return 'Extra Oficial';
+    return desc as AgendaEvent['tipo'];
   }
 
   private mapToRequest(event: AgendaEvent): CreateAgendaEventRequest {

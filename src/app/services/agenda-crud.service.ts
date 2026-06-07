@@ -3,15 +3,20 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
+export interface EnumValue {
+  value: string;
+  description: string;
+}
+
 export interface AgendaEventApi {
   id: string;
   title: string;
   description: string | null;
-  date: string;       // "2026-06-06"
-  startTime: string | null; // "08:00"
-  endTime: string | null;   // "09:00"
-  type: string;        // "Normal" | "Extemporanea" | "ExtraOficial"
-  status: string;      // "Pendiente" | "Confirmada" | "Cancelada"
+  date: string;
+  startTime: string | null;
+  endTime: string | null;
+  type: EnumValue;
+  status: EnumValue;
   assignedTo: string | null;
 }
 
