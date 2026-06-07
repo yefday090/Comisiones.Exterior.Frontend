@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { NgIf, NgFor } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -38,17 +38,17 @@ interface ComisionRow {
       />
 
       <!-- Resultados -->
-      <mat-card class="resultados-card" *ngIf="buscado">
+      <mat-card class="resultados-card" *ngIf="buscado()">
         <mat-card-header>
           <mat-card-title>Resultados</mat-card-title>
         </mat-card-header>
 
         <mat-card-content>
-          <p class="text-muted" *ngIf="resultados.length === 0">
+          <p class="text-muted" *ngIf="resultados().length === 0">
             No se encontraron comisiones con los filtros aplicados.
           </p>
 
-          <table mat-table [dataSource]="resultados" *ngIf="resultados.length > 0">
+          <table mat-table [dataSource]="resultados()" *ngIf="resultados().length > 0">
             <ng-container matColumnDef="id">
               <th mat-header-cell *matHeaderCellDef>ID</th>
               <td mat-cell *matCellDef="let r">{{ r.id }}</td>
@@ -136,8 +136,8 @@ interface ComisionRow {
 export class AsignarComisionComponent implements OnInit {
   fields: FormFieldConfig[] = [];
 
-  buscado = false;
-  resultados: ComisionRow[] = [];
+  buscado = signal(false);
+  resultados = signal<ComisionRow[]>([]);
   displayedColumns = ['id', 'tipo', 'asignadaA', 'estado', 'fechaCreacion'];
 
   constructor(
@@ -150,7 +150,7 @@ export class AsignarComisionComponent implements OnInit {
   }
 
   onSearch(values: Record<string, any>): void {
-    this.buscado = true;
+    this.buscado.set(true);
 
     const fechaDesde = values['fechaCreacion_desde'] as Date | null;
     const fechaHasta = values['fechaCreacion_hasta'] as Date | null;
@@ -167,23 +167,23 @@ export class AsignarComisionComponent implements OnInit {
 
     this.agendaCrud.getAll(filters).subscribe({
       next: (data) => {
-        this.resultados = data.map((e) => ({
+        this.resultados.set(data.map((e) => ({
           id: e.id.substring(0, 8),
           tipo: e.type.description,
           asignadaA: e.assignedTo ?? '',
           estado: e.status.description,
           fechaCreacion: e.date,
-        }));
+        })));
       },
       error: () => {
-        this.resultados = [];
+        this.resultados.set([]);
       },
     });
   }
 
   onClear(): void {
-    this.buscado = false;
-    this.resultados = [];
+    this.buscado.set(false);
+    this.resultados.set([]);
   }
 
   private formatDate(date: Date): string {
