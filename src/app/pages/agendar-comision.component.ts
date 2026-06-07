@@ -49,7 +49,7 @@ export class AgendarComisionComponent implements OnInit {
   private readonly dialog = inject(MatDialog);
   private readonly formConfig = inject(FormConfigService);
 
-  readonly fields: FormFieldConfig[] = this.formConfig.getSearchFields();
+  readonly fields: FormFieldConfig[] = this.formConfig.getAgendaSearchFields();
   readonly events = this.agenda.events;
 
   readonly showCalendar = signal(false);
@@ -169,7 +169,7 @@ export class AgendarComisionComponent implements OnInit {
   }
 
   private _estadoToValue(estado: string): number {
-    const map: Record<string, number> = { Radicada: 0, Asignada: 1, Terminada: 2 };
+    const map: Record<string, number> = { Pendiente: 0, Confirmada: 1, Cancelada: 2 };
     return map[estado] ?? 0;
   }
 }
