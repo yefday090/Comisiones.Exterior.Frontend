@@ -31,9 +31,9 @@ export class AgendaService {
   addEvent(event: AgendaEvent): void {
     const req = this.mapToRequest(event);
     this.crud.create(req).subscribe({
-      next: (created) => {
-        this._events.update((events) => [...events, this.mapToEvent(created)]);
+      next: () => {
         this.notify.success('Evento creado');
+        this.loadEvents();
       },
       error: () => this.notify.error('Error al crear el evento'),
     });
@@ -43,10 +43,8 @@ export class AgendaService {
     const req = this.mapToUpdateRequest(event);
     this.crud.update(event.id, req).subscribe({
       next: () => {
-        this._events.update((events) =>
-          events.map((e) => (e.id === event.id ? event : e))
-        );
         this.notify.success('Evento actualizado');
+        this.loadEvents();
       },
       error: () => this.notify.error('Error al actualizar el evento'),
     });
@@ -55,8 +53,8 @@ export class AgendaService {
   deleteEvent(id: string): void {
     this.crud.delete(id).subscribe({
       next: () => {
-        this._events.update((events) => events.filter((e) => e.id !== id));
         this.notify.success('Evento eliminado');
+        this.loadEvents();
       },
       error: () => this.notify.error('Error al eliminar el evento'),
     });
